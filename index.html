@@ -344,6 +344,53 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 .modal-step-num { min-width: 22px; height: 22px; background: var(--green-600); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; margin-top: 1px; }
 .modal-close-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(255,255,255,0.92); border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; }
 
+/* ─── BMI KALKULAČKA ─── */
+.bmi-scale {
+  position: relative;
+  height: 18px;
+  border-radius: 9px;
+  background: linear-gradient(to right, #4B9CD3 0%, #509636 30%, #a4d665 50%, #E8A838 70%, #E07340 85%, #c0392b 100%);
+  margin: 16px 0 24px;
+}
+.bmi-scale-pointer {
+  position: absolute;
+  top: -6px;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid var(--text-primary);
+  transition: left 0.5s ease;
+}
+.bmi-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.bmi-result-value {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  color: var(--green-600);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.bmi-result-category {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.bmi-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bmi-table th { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 8px 10px; text-align: left; border-bottom: 2px solid var(--green-300); }
+.bmi-table td { padding: 8px 10px; border-bottom: 1px dashed var(--green-100); }
+.bmi-table tr.bmi-active td { background: var(--green-100); font-weight: 700; }
+.bmi-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
 /* Print view skryt na obrazovce */
 .print-day-view { display: none; }
 
@@ -521,6 +568,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
     <button class="tab-btn active" onclick="switchTab('planovac', this)">🛒 Plánovač jídel</button>
     <button class="tab-btn" onclick="switchTab('jidelnicek', this)">📋 Můj jídelníček</button>
     <button class="tab-btn" onclick="switchTab('kalkulacka', this)">🔢 Kalkulačka TDEE</button>
+    <button class="tab-btn" onclick="switchTab('bmi', this)">⚖️ Kalkulačka BMI</button>
   </nav>
 
   <div id="tab-planovac" class="tab-panel active">
@@ -637,12 +685,115 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
     </div>
 
     <div class="tdee-card" style="background:var(--green-100);border:none;">
-      <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">
-        <strong>Jak výpočet funguje?</strong> Používám Mifflin-St Jeor vzorec, jeden z nejpřesnějších pro výpočet bazálního metabolismu (BMR). Výsledný TDEE (Total Daily Energy Expenditure) zohledňuje tvoji denní aktivitu. Výsledek je orientační, tělo každého funguje trochu jinak, sleduj svoji váhu 3–4 týdny a uprav příjem podle skutečné reakce.
-      </p>
+      <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--text-primary);margin-bottom:20px;">Co je TDEE a jak s tím pracovat?</div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green-600);margin-bottom:6px;">Co je BMR (Bazální metabolismus)?</div>
+        <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">Bazální metabolismus (BMR) je množství energie, které tvoje tělo spotřebuje v naprostém klidu – jen pro zachování základních životních funkcí jako dýchání, tep srdce nebo udržení tělesné teploty. Čím větší a svalovitější tělo, tím vyšší BMR.</p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green-600);margin-bottom:6px;">Co je TDEE?</div>
+        <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">TDEE (Total Daily Energy Expenditure) = celkový denní výdej energie. Zahrnuje BMR plus energii spotřebovanou pohybem, trávením a každodenními aktivitami. Jednoduše řečeno: kolik kalorií tvoje tělo skutečně spálí za celý den.</p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green-600);margin-bottom:10px;">Jak využít výsledky?</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div style="background:white;border-radius:10px;padding:12px;border-top:3px solid #509636;">
+            <div style="font-size:20px;margin-bottom:6px;">🟢</div>
+            <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--text-primary);margin-bottom:4px;">Hubnout</div>
+            <div style="font-size:12px;color:var(--text-body);line-height:1.6;">Jez méně než TDEE. Doporučený deficit −400 kcal/den = cca 0,3–0,5 kg/týden.</div>
+          </div>
+          <div style="background:white;border-radius:10px;padding:12px;border-top:3px solid #E8A838;">
+            <div style="font-size:20px;margin-bottom:6px;">🟡</div>
+            <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--text-primary);margin-bottom:4px;">Udržovat váhu</div>
+            <div style="font-size:12px;color:var(--text-body);line-height:1.6;">Jez přibližně tolik, kolik je tvoje TDEE.</div>
+          </div>
+          <div style="background:white;border-radius:10px;padding:12px;border-top:3px solid #4B9CD3;">
+            <div style="font-size:20px;margin-bottom:6px;">🔵</div>
+            <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--text-primary);margin-bottom:4px;">Nabírat svaly</div>
+            <div style="font-size:12px;color:var(--text-body);line-height:1.6;">Jez mírně více než TDEE (+250 kcal/den).</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green-600);margin-bottom:6px;">Jak přesný je výsledek?</div>
+        <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">Výsledek je orientační. Výpočet používá Mifflin-St Jeor vzorec – jeden z nejpřesnějších vědecky ověřených vzorců. Tělo každého člověka ale reaguje trochu jinak. Sleduj svoji váhu 3–4 týdny, a pokud se nemění tak, jak chceš, uprav příjem o 100–200 kcal.</p>
+      </div>
     </div>
 
   </div><!-- end tab-kalkulacka -->
+
+  <div id="tab-bmi" class="tab-panel">
+
+    <!-- Úvod -->
+    <div class="tdee-card" style="background:var(--green-100);border:none;margin-bottom:20px;">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--text-primary);margin-bottom:10px;">Co je BMI?</div>
+      <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">BMI (Body Mass Index) je jednoduchý ukazatel poměru tělesné hmotnosti k výšce. Slouží jako orientační měřítko, zda je naše váha v zdravém rozsahu. Vzorec: <strong>BMI = váha (kg) ÷ výška² (m)</strong>. Pamatuj, že BMI nebere v úvahu složení těla – svalnatý člověk může mít „nadváhu" dle BMI, přestože je zdravý.</p>
+    </div>
+
+    <!-- Formulář -->
+    <div class="tdee-card">
+      <h3>Zadej své údaje</h3>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Váha (kg)</label>
+          <input type="number" id="bmi-weight" placeholder="např. 65" min="30" max="250">
+        </div>
+        <div class="input-group">
+          <label>Výška (cm)</label>
+          <input type="number" id="bmi-height" placeholder="např. 168" min="100" max="250">
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="btn btn-primary" style="font-size:16px;padding:16px 40px;" onclick="calcBMI()">⚖️ Vypočítat moje BMI</button>
+      </div>
+    </div>
+
+    <!-- Výsledky (skryté) -->
+    <div class="tdee-result" id="bmi-result" style="margin-bottom:20px;">
+      <div style="text-align:center;margin-bottom:8px;">
+        <div class="bmi-result-value" id="bmi-val">—</div>
+        <div class="bmi-result-category" id="bmi-cat">—</div>
+      </div>
+      <div class="bmi-scale" id="bmi-scale">
+        <div class="bmi-scale-pointer" id="bmi-pointer" style="left:0%"></div>
+      </div>
+      <div class="bmi-scale-labels">
+        <span>15</span><span>18,5</span><span>25</span><span>30</span><span>35</span><span>40+</span>
+      </div>
+    </div>
+
+    <!-- Tabulka kategorií -->
+    <div class="tdee-card" style="margin-bottom:20px;">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:14px;">Kategorie BMI</div>
+      <table class="bmi-table" id="bmi-table">
+        <thead><tr><th>BMI</th><th>Kategorie</th></tr></thead>
+        <tbody>
+          <tr data-min="0"   data-max="18.5"><td><span class="bmi-dot" style="background:#4B9CD3"></span>&lt; 18,5</td><td>Podváha</td></tr>
+          <tr data-min="18.5" data-max="25"><td><span class="bmi-dot" style="background:#509636"></span>18,5 – 24,9</td><td>Optimální váha ✓</td></tr>
+          <tr data-min="25"  data-max="30"><td><span class="bmi-dot" style="background:#E8A838"></span>25,0 – 29,9</td><td>Nadváha</td></tr>
+          <tr data-min="30"  data-max="35"><td><span class="bmi-dot" style="background:#E07340"></span>30,0 – 34,9</td><td>Obezita I. stupně</td></tr>
+          <tr data-min="35"  data-max="40"><td><span class="bmi-dot" style="background:#c0392b"></span>35,0 – 39,9</td><td>Obezita II. stupně</td></tr>
+          <tr data-min="40"  data-max="999"><td><span class="bmi-dot" style="background:#8e1a1a"></span>≥ 40,0</td><td>Obezita III. stupně</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Ideální váha -->
+    <div class="tdee-card" id="bmi-ideal-card" style="display:none;margin-bottom:20px;">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:8px;">Tvoje ideální váha</div>
+      <p id="bmi-ideal-text" style="font-size:14px;line-height:1.7;color:var(--text-body);"></p>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="tdee-card" style="background:var(--green-100);border:none;">
+      <p style="font-size:13px;line-height:1.75;color:var(--text-body);">BMI je orientační ukazatel. Nezohledňuje svalovou hmotu, věk, pohlaví ani rozložení tuku v těle. Pro přesnější zhodnocení zdravotního stavu doporučujeme konzultaci s lékařem nebo nutričním poradcem.</p>
+    </div>
+
+  </div><!-- end tab-bmi -->
 
 </main>
 
@@ -1197,6 +1348,66 @@ function calcTDEE() {
   const res = document.getElementById('tdee-result');
   res.classList.add('visible');
   res.scrollIntoView({behavior: 'smooth'});
+}
+
+function calcBMI() {
+  const w = parseFloat(document.getElementById('bmi-weight').value);
+  const h = parseFloat(document.getElementById('bmi-height').value);
+
+  if (!w || !h || w < 30 || w > 300 || h < 100 || h > 250) {
+    alert('Vyplň prosím váhu (30–300 kg) a výšku (100–250 cm) správně.');
+    return;
+  }
+
+  const bmi = Math.round((w / Math.pow(h / 100, 2)) * 10) / 10;
+
+  const categories = [
+    { max: 18.5, label: 'Podváha',            color: '#4B9CD3' },
+    { max: 25,   label: 'Optimální váha ✓',   color: '#509636' },
+    { max: 30,   label: 'Nadváha',             color: '#E8A838' },
+    { max: 35,   label: 'Obezita I. stupně',   color: '#E07340' },
+    { max: 40,   label: 'Obezita II. stupně',  color: '#c0392b' },
+    { max: Infinity, label: 'Obezita III. stupně', color: '#8e1a1a' },
+  ];
+
+  const cat = categories.find(c => bmi < c.max);
+
+  document.getElementById('bmi-val').textContent = bmi.toFixed(1).replace('.', ',');
+  const catEl = document.getElementById('bmi-cat');
+  catEl.textContent = cat.label;
+  catEl.style.color = cat.color;
+
+  // Scale pointer: range 15–45, clamped to 2–98%
+  const pct = Math.min(98, Math.max(2, ((bmi - 15) / 30) * 100));
+  document.getElementById('bmi-pointer').style.left = pct + '%';
+
+  // Highlight active table row
+  document.querySelectorAll('#bmi-table tbody tr').forEach(tr => {
+    const min = parseFloat(tr.dataset.min);
+    const max = parseFloat(tr.dataset.max);
+    tr.style.background = (bmi >= min && bmi < max) ? 'rgba(80,150,54,0.12)' : '';
+    tr.style.fontWeight = (bmi >= min && bmi < max) ? '700' : '';
+  });
+
+  // Ideal weight card
+  const idealMin = Math.round(18.5 * Math.pow(h / 100, 2) * 10) / 10;
+  const idealMax = Math.round(24.9 * Math.pow(h / 100, 2) * 10) / 10;
+  const idealCard = document.getElementById('bmi-ideal-card');
+  const idealText = document.getElementById('bmi-ideal-text');
+
+  if (bmi >= 18.5 && bmi < 25) {
+    idealText.textContent = `Tvoje BMI ${bmi.toFixed(1).replace('.', ',')} je v ideálním rozsahu. Ideální váha pro tvoji výšku ${h} cm je ${idealMin.toFixed(1).replace('.', ',')} – ${idealMax.toFixed(1).replace('.', ',')} kg.`;
+  } else {
+    const diff = bmi < 18.5
+      ? `Pro dosažení ideálního BMI bys potřeboval/a přibrat alespoň ${(idealMin - w).toFixed(1).replace('.', ',')} kg.`
+      : `Pro dosažení ideálního BMI bys potřeboval/a zhubnout alespoň ${(w - idealMax).toFixed(1).replace('.', ',')} kg.`;
+    idealText.textContent = `Ideální váha pro tvoji výšku ${h} cm je ${idealMin.toFixed(1).replace('.', ',')} – ${idealMax.toFixed(1).replace('.', ',')} kg. ${diff}`;
+  }
+  idealCard.style.display = 'block';
+
+  const result = document.getElementById('bmi-result');
+  result.classList.add('visible');
+  result.scrollIntoView({ behavior: 'smooth' });
 }
 </script>
 </body>
