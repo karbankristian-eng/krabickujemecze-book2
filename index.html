@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krabičkujeme — Plánovač nákupů a osobní kalkulačka</title>
+<link href="https://fonts.googleapis.com/css2?family=Hurricane&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-600: #509636;
+  --green-300: #a4d665;
+  --green-100: #d6edbc;
+  --off-white: #f8faf6;
+  --text-primary: #1a2d10;
+  --text-body: #334028;
+  --text-muted: #627055;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lato', sans-serif; background: var(--off-white); color: var(--text-body); }
+
+header {
+  background: var(--green-600);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+header h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 36px;
+  color: white;
+  line-height: 1;
+}
+header p { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 14px; color: rgba(255,255,255,0.9); }
+
+main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
+
+/* Makro karty */
+#macro-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.macro-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.macro-card .value {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 28px;
+  color: var(--green-600);
+}
+.macro-card .label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+.macro-card .week-val {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.macro-card-avg-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+/* Sekce nadpis */
+.section-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+/* Dny */
+#days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.day-card {
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.day-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--green-300);
+}
+.meal-select { margin-bottom: 8px; }
+.meal-select label {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.meal-select select {
+  width: 100%;
+  padding: 5px 6px;
+  font-size: 11px;
+  font-family: 'Lato', sans-serif;
+  border: 1px solid var(--green-300);
+  border-radius: 6px;
+  background: var(--off-white);
+  color: var(--text-body);
+  cursor: pointer;
+}
+.meal-select select:focus { outline: none; border-color: var(--green-600); }
+
+.day-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.day-macro-bubble {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 10px 8px;
+  text-align: center;
+}
+.bubble-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.bubble-kcal-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  line-height: 1;
+}
+.bubble-kcal-val {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--green-600);
+}
+.bubble-kcal-unit {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.bubble-kj {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.bubble-divider {
+  border: none;
+  border-top: 1px dashed var(--green-100);
+  margin: 6px 0;
+}
+.bubble-macros-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+}
+.bubble-macro-col .macro-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-600);
+  line-height: 1.2;
+}
+.bubble-macro-col .macro-lbl {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Tlačítka */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-primary { background: var(--green-600); color: white; }
+.btn-primary:hover { background: #3d7228; }
+.btn-secondary { background: white; color: var(--green-600); border: 2px solid var(--green-600); }
+.btn-secondary:hover { background: var(--green-100); }
+
+/* Nákupní seznam */
+#shopping-section { display: none; margin-top: 32px; }
+#shopping-section.visible { display: block; }
+
+.shopping-category {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.shopping-category h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--green-100);
+}
+.shopping-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--green-100);
+  font-size: 14px;
+}
+.shopping-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--green-600);
+}
+.shopping-item.checked { opacity: 0.5; text-decoration: line-through; }
+
+.actions-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  #days-grid { grid-template-columns: repeat(3, 1fr); }
+  #macro-summary { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  #days-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media print {
+  header, #days-grid, #macro-summary, .actions-bar, .section-heading:first-of-type { display: none !important; }
+  #shopping-section { display: block !important; }
+  body { background: white; }
+  .shopping-category { box-shadow: none; border: 1px solid #ddd; }
+}
+
+/* ─── JÍDELNÍČEK ─── */
+.day-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.day-pill { padding: 8px 18px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; border: 2px solid var(--green-300); border-radius: 20px; background: white; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+.day-pill:hover { background: var(--green-100); color: var(--text-primary); }
+.day-pill.active { background: var(--green-600); color: white; border-color: var(--green-600); }
+.day-pill.empty { opacity: 0.35; pointer-events: none; }
+
+.meal-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.meal-card { background: white; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.meal-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.13); }
+.meal-card-photo { width: 100%; height: 130px; object-fit: cover; display: block; background: var(--green-100); }
+.meal-card-body { padding: 10px 12px 14px; }
+.meal-card-type { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green-600); margin-bottom: 3px; }
+.meal-card-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 8px; line-height: 1.3; }
+.meal-card-kcal { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 17px; color: var(--green-600); }
+.meal-card-kcal span { font-size: 11px; font-weight: 400; color: var(--text-muted); }
+.meal-card-macros { display: flex; gap: 8px; margin-top: 5px; font-size: 10px; color: var(--text-muted); }
+.meal-card-macros b { color: var(--green-600); }
+
+/* Celý týden grid */
+.week-overview-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 24px; align-items: stretch; }
+.week-day-col { display: flex; flex-direction: column; }
+.week-day-heading { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); padding-bottom: 5px; border-bottom: 2px solid var(--green-300); margin-bottom: 6px; }
+.week-day-meals { flex: 1; }
+.week-meal-item { background: var(--off-white); border: 0.5px solid var(--green-100); border-radius: 6px; padding: 5px 7px; margin-bottom: 5px; cursor: pointer; transition: background 0.12s; }
+.week-meal-item:hover { background: var(--green-100); }
+.week-meal-type { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 8px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--green-600); }
+.week-meal-name { font-size: 9px; font-weight: 700; color: var(--text-primary); line-height: 1.25; margin: 2px 0; }
+.week-meal-kcal { font-size: 8px; color: var(--text-muted); }
+.week-day-total { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 10px; color: var(--green-600); text-align: center; padding: 4px 0; border-top: 1px solid var(--green-100); margin-top: auto; padding-top: 6px; }
+
+.jidelnicek-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.jidelnicek-empty .ei { font-size: 52px; margin-bottom: 14px; }
+.jidelnicek-empty h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 17px; color: var(--text-primary); margin-bottom: 8px; }
+.jidelnicek-empty p { font-size: 14px; line-height: 1.7; }
+
+.jidelnicek-actions { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.open { display: flex; }
+.modal-wrap { position: relative; max-width: 600px; width: 100%; }
+.modal-box { background: white; border-radius: 20px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.modal-photo { width: 100%; height: 240px; object-fit: cover; border-radius: 20px 20px 0 0; display: block; background: var(--green-100); }
+.modal-content { padding: 20px 24px 28px; }
+.modal-type { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green-600); margin-bottom: 4px; }
+.modal-name { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 22px; color: var(--text-primary); margin-bottom: 14px; line-height: 1.2; }
+.modal-macros { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
+.modal-macro { background: var(--green-100); border-radius: 10px; padding: 10px 6px; text-align: center; }
+.modal-macro .mv { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; color: var(--green-600); }
+.modal-macro .ml { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.modal-body-cols { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; }
+.modal-section-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-primary); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid var(--green-300); }
+.modal-ing-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--green-100); font-size: 13px; }
+.modal-ing-item .ia { color: var(--text-muted); font-size: 12px; white-space: nowrap; margin-left: 6px; }
+.modal-step { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--green-100); font-size: 13px; line-height: 1.5; align-items: flex-start; }
+.modal-step-num { min-width: 22px; height: 22px; background: var(--green-600); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; margin-top: 1px; }
+.modal-close-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(255,255,255,0.92); border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; }
+
+/* Print view skryt na obrazovce */
+.print-day-view { display: none; }
+
+/* ── PRINT STYLY ─────────────────────────────────────────────────── */
+@media print {
+  header, .tab-nav, .jidelnicek-actions, .day-pills,
+  .modal-overlay, #macro-summary, .section-heading,
+  #tab-planovac, #tab-kalkulacka { display: none !important; }
+  #tab-jidelnicek { display: block !important; }
+  body { background: white; font-size: 11px; }
+  main { padding: 0 !important; max-width: 100%; }
+  /* Vždy skryj screen-only prvky */
+  .meal-cards-grid { display: none !important; }
+  /* DEN — výchozí tisk */
+  .print-day-view { display: block !important; zoom: 0.8; }
+  .week-overview-grid { display: none !important; }
+  /* TÝDEN — aktivní jen s třídou printing-week na body */
+  body.printing-week .print-day-view { display: none !important; }
+  body.printing-week .week-overview-grid { display: grid !important; zoom: 0.72; }
+  body.printing-week .week-day-col { break-inside: avoid; }
+  .print-day-header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 8px; border-bottom: 2px solid #509636; margin-bottom: 12px; }
+  .print-day-title { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; color: #509636; }
+  .print-day-sub { font-family: 'Montserrat', sans-serif; font-size: 10px; color: #627055; }
+  .print-day-summary { text-align: right; }
+  .print-day-kcal { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px; color: #509636; }
+  .print-day-macros { font-size: 10px; color: #627055; }
+  .print-meal-block { border: 0.5px solid #d6edbc; border-radius: 8px; overflow: hidden; margin-bottom: 10px; break-inside: avoid; }
+  .print-meal-header { background: #d6edbc; padding: 5px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .print-meal-type { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 8px; text-transform: uppercase; letter-spacing: 0.07em; color: #3b6d11; }
+  .print-meal-name { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; color: #1a2d10; }
+  .print-meal-kcal { font-size: 10px; font-weight: 700; color: #509636; white-space: nowrap; }
+  .print-meal-body { padding: 8px 12px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+  .print-col-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; color: #627055; border-bottom: 0.5px solid #d6edbc; padding-bottom: 3px; margin-bottom: 5px; }
+  .print-ing-row { display: flex; justify-content: space-between; font-size: 9px; padding: 2px 0; border-bottom: 0.5px dashed #d6edbc; color: #334028; }
+  .print-ing-row span { color: #627055; }
+  .print-step-row { display: flex; gap: 5px; font-size: 9px; color: #334028; margin-bottom: 4px; line-height: 1.4; align-items: flex-start; }
+  .print-step-num { min-width: 14px; height: 14px; background: #509636; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .print-repeat-note { font-size: 9px; color: #627055; font-style: italic; padding: 4px 0; }
+  .print-day-note { font-size: 9px; color: #627055; padding: 6px 10px; background: #f8faf6; border-radius: 5px; border-left: 2px solid #a4d665; margin-top: 8px; }
+}
+
+/* Tabs */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--green-300);
+  margin-bottom: 14px;
+}
+.tab-btn {
+  padding: 12px 28px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.tab-btn.active { color: var(--green-600); border-bottom-color: var(--green-600); }
+.tab-btn:hover:not(.active) { color: var(--text-primary); background: var(--green-100); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* TDEE kalkulačka */
+.tdee-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 20px;
+}
+.tdee-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--green-300);
+}
+.input-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.input-group label {
+  display: block;
+  font-size: 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.input-group input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: 'Lato', sans-serif;
+  border: 1.5px solid var(--green-300);
+  border-radius: 8px;
+  background: var(--off-white);
+  color: var(--text-body);
+}
+.input-group input:focus { outline: none; border-color: var(--green-600); }
+.radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--green-300);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.radio-group label:hover { background: var(--green-100); }
+.radio-group input[type=radio] { accent-color: var(--green-600); }
+.activity-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.activity-group label {
+  padding: 10px 14px;
+  border: 1.5px solid var(--green-300);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.activity-group label:hover { background: var(--green-100); }
+.activity-group label .activity-desc {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.tdee-result {
+  background: var(--green-600);
+  color: white;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  display: none;
+}
+.tdee-result.visible { display: block; }
+.tdee-result h3 { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; opacity: 0.85; }
+.tdee-numbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.tdee-number { text-align: center; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px; }
+.tdee-number .n { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; }
+.tdee-number .l { font-size: 11px; opacity: 0.85; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.goal-boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.goal-box { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; text-align: center; }
+.goal-box .goal-val { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 4px; }
+.goal-box .goal-lbl { font-size: 11px; opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Krabičkujeme</h1>
+    <p>Plánovač nákupů a osobní kalkulačka</p>
+  </div>
+</header>
+
+<main>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('planovac', this)">🛒 Plánovač jídel</button>
+    <button class="tab-btn" onclick="switchTab('jidelnicek', this)">📋 Můj jídelníček</button>
+    <button class="tab-btn" onclick="switchTab('kalkulacka', this)">🔢 Kalkulačka TDEE</button>
+  </nav>
+
+  <div id="tab-planovac" class="tab-panel active">
+
+  <!-- Makro summary -->
+  <div id="macro-summary">
+    <div class="macro-card">
+      <div class="macro-card-avg-label">Ø průměr / den</div>
+      <div class="value" id="sum-kcal">0</div>
+      <div class="label">kcal</div>
+      <div class="week-val" id="sum-kcal-week">0 kcal celkem / týden</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-card-avg-label">Ø průměr / den</div>
+      <div class="value" id="sum-b">0g</div>
+      <div class="label">Bílkoviny</div>
+      <div class="week-val" id="sum-b-week">0g celkem / týden</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-card-avg-label">Ø průměr / den</div>
+      <div class="value" id="sum-s">0g</div>
+      <div class="label">Sacharidy</div>
+      <div class="week-val" id="sum-s-week">0g celkem / týden</div>
+    </div>
+    <div class="macro-card">
+      <div class="macro-card-avg-label">Ø průměr / den</div>
+      <div class="value" id="sum-t">0g</div>
+      <div class="label">Tuky</div>
+      <div class="week-val" id="sum-t-week">0g celkem / týden</div>
+    </div>
+  </div>
+
+  <div class="section-heading">Výběr jídel</div>
+
+  <div id="days-grid"></div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="generateShoppingList()">🛒 Vygenerovat nákupní seznam</button>
+    <button class="btn btn-secondary" onclick="window.print()">🖨️ Vytisknout seznam</button>
+    <button class="btn btn-secondary" onclick="resetAll()">↺ Reset</button>
+  </div>
+
+  <div id="shopping-section">
+    <div class="section-heading">Nákupní seznam</div>
+    <div id="shopping-lists"></div>
+  </div>
+
+  </div><!-- end tab-planovac -->
+
+  <div id="tab-jidelnicek" class="tab-panel"></div>
+
+  <div id="tab-kalkulacka" class="tab-panel">
+
+    <div class="tdee-card">
+      <h3>Krok 1 — Tvoje základní údaje</h3>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Váha (kg)</label>
+          <input type="number" id="tdee-weight" placeholder="např. 65" min="30" max="250">
+        </div>
+        <div class="input-group">
+          <label>Výška (cm)</label>
+          <input type="number" id="tdee-height" placeholder="např. 168" min="100" max="250">
+        </div>
+        <div class="input-group">
+          <label>Věk (let)</label>
+          <input type="number" id="tdee-age" placeholder="např. 30" min="10" max="100">
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-family:'Montserrat',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:10px;">Pohlaví</div>
+        <div class="radio-group">
+          <label><input type="radio" name="tdee-gender" value="f" checked> Žena</label>
+          <label><input type="radio" name="tdee-gender" value="m"> Muž</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="tdee-card">
+      <h3>Krok 2 — Úroveň aktivity</h3>
+      <div class="activity-group">
+        <label><input type="radio" name="tdee-activity" value="1.2" checked> Sedavý životní styl
+          <span class="activity-desc">Práce u stolu, minimální pohyb</span>
+        </label>
+        <label><input type="radio" name="tdee-activity" value="1.375"> Mírně aktivní × 1,375
+          <span class="activity-desc">Lehký sport 1–3× týdně</span>
+        </label>
+        <label><input type="radio" name="tdee-activity" value="1.55"> Aktivní × 1,55
+          <span class="activity-desc">Sport 3–5× týdně</span>
+        </label>
+        <label><input type="radio" name="tdee-activity" value="1.725"> Velmi aktivní × 1,725
+          <span class="activity-desc">Intenzivní trénink 6–7× týdně</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <button class="btn btn-primary" style="font-size:16px;padding:16px 40px;" onclick="calcTDEE()">🔢 Vypočítat moje TDEE</button>
+    </div>
+
+    <div class="tdee-result" id="tdee-result">
+      <h3>Tvoje výsledky</h3>
+      <div class="tdee-numbers">
+        <div class="tdee-number"><div class="n" id="res-bmr">—</div><div class="l">BMR kcal/den</div></div>
+        <div class="tdee-number"><div class="n" id="res-tdee">—</div><div class="l">TDEE kcal/den</div></div>
+        <div class="tdee-number"><div class="n" id="res-tdee-kj">—</div><div class="l">TDEE kJ/den</div></div>
+      </div>
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;opacity:0.85;margin-bottom:12px;">Doporučený příjem dle cíle</div>
+      <div class="goal-boxes">
+        <div class="goal-box"><div class="goal-val" id="res-hubnout">—</div><div class="goal-lbl">kcal/den<br>Hubnout (−400 kcal)</div></div>
+        <div class="goal-box"><div class="goal-val" id="res-udrzovat">—</div><div class="goal-lbl">kcal/den<br>Udržovat váhu</div></div>
+        <div class="goal-box"><div class="goal-val" id="res-nabirat">—</div><div class="goal-lbl">kcal/den<br>Nabírat (+250 kcal)</div></div>
+      </div>
+    </div>
+
+    <div class="tdee-card" style="background:var(--green-100);border:none;">
+      <p style="font-size:13.5px;line-height:1.75;color:var(--text-body);">
+        <strong>Jak výpočet funguje?</strong> Používám Mifflin-St Jeor vzorec, jeden z nejpřesnějších pro výpočet bazálního metabolismu (BMR). Výsledný TDEE (Total Daily Energy Expenditure) zohledňuje tvoji denní aktivitu. Výsledek je orientační, tělo každého funguje trochu jinak, sleduj svoji váhu 3–4 týdny a uprav příjem podle skutečné reakce.
+      </p>
+    </div>
+
+  </div><!-- end tab-kalkulacka -->
+
+</main>
+
+<script>
+// ─── DATA RECEPTŮ ─────────────────────────────────────────────────────────────
+const PHOTO_BASE = "fotky_receptu/";
+const RECIPES = [
+  {id:1,nazev:"Pohanková kaše",kat:"Snídaně",kcal:277,b:10,s:44,t:6,photoUrl:PHOTO_BASE+"01_Pohankova_kase.png",postup:["Pohanku vaříme v mléce 15 minut do změknutí.","Odstavíme, přikryjeme a necháme 5 minut dojít.","Dochutíme sirupem, přidáme rozinky a ořechy."],ing:[{n:"Pohanka loupaná",m:"100g",k:"Suché potraviny"},{n:"Sójové nebo polotučné mléko",m:"0,3l",k:"Mléčné výrobky"},{n:"Rozinky",m:"1 lžička",k:"Suché potraviny"},{n:"Drcené mandle nebo ořechy",m:"1 lžíce",k:"Suché potraviny"},{n:"Javorový sirup",m:"dle chuti",k:"Suché potraviny"}]},
+  {id:2,nazev:"Banánovo-ovesné lívance",kat:"Snídaně",kcal:355,b:16,s:38,t:16,photoUrl:PHOTO_BASE+"02_Bananovo-ovesne_livance.png",postup:["Banán rozmačkáme vidličkou, smícháme s vejcem.","Přidáme vločky a prášek do pečiva, promícháme.","Smažíme lívance na suché pánvi z obou stran."],ing:[{n:"Banán",m:"1 velký",k:"Zelenina & ovoce"},{n:"Vejce",m:"1 ks",k:"Mléčné výrobky"},{n:"Ovesné jemné vločky",m:"5 lžic",k:"Suché potraviny"},{n:"Prášek do pečiva",m:"½ lžičky",k:"Koření a dochucovadla"}]},
+  {id:3,nazev:"Ovesná kaše s karotkou a zázvorem",kat:"Snídaně",kcal:373,b:8,s:86,t:3,photoUrl:PHOTO_BASE+"03_Ovesna_kase_s_karotkou_a_zazvorem.png",postup:["Vločky vaříme v mléce 5 minut za stálého míchání.","Mrkev nastrouháme najemno a vmícháme do kaše.","Dochutíme zázvorem a javorovým sirupem."],ing:[{n:"Ovesné vločky",m:"1 šálek",k:"Suché potraviny"},{n:"Rostlinné mléko",m:"2 šálky",k:"Mléčné výrobky"},{n:"Mrkev",m:"2 menší ks",k:"Zelenina & ovoce"},{n:"Javorový sirup",m:"1 lžíce",k:"Suché potraviny"},{n:"Zázvor mletý",m:"špetka",k:"Koření a dochucovadla"}]},
+  {id:4,nazev:"Kokosovo-čokoládová kaše",kat:"Snídaně",kcal:656,b:14,s:47,t:48,photoUrl:PHOTO_BASE+"04_Kokosovo-cokoladova_kase.png",postup:["Vločky vaříme v kokosovém mléce 5 minut.","Vmícháme kakao a med, dobře promícháme.","Servírujeme posypané strouhaným kokosem."],ing:[{n:"Ovesné vločky",m:"80g",k:"Suché potraviny"},{n:"Kokosové mléko",m:"200ml",k:"Suché potraviny"},{n:"Kakao",m:"1 lžíce",k:"Suché potraviny"},{n:"Kokos strouhaný",m:"1 lžíce",k:"Suché potraviny"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:5,nazev:"Pohankový mls",kat:"Snídaně",kcal:288,b:16,s:48,t:14,photoUrl:PHOTO_BASE+"05_Pohankovy_mls.png",postup:["Do misky dáme pohankové vločky.","Přelijeme jogurtem a přidáme mandle.","Pokapeme sirupem a ihned podáváme."],ing:[{n:"Pohankové vločky",m:"50g",k:"Suché potraviny"},{n:"Jogurt Hollandia",m:"1 malý",k:"Mléčné výrobky"},{n:"Mandle celé",m:"hrst",k:"Suché potraviny"},{n:"Javorový sirup",m:"dle chuti",k:"Koření a dochucovadla"}]},
+  {id:6,nazev:"Mini omelety se zeleninkou",kat:"Snídaně",kcal:272,b:25,s:10,t:15,photoUrl:PHOTO_BASE+"06_Mini_omeletky_se_zeleninkou.png",postup:["Vejce rozmícháme se solí, lnem a zeleninou.","Nalijeme do formiček na muffiny.","Pečeme 20 minut na 180 °C dozlatova."],ing:[{n:"Vajíčko",m:"1 ks",k:"Mléčné výrobky"},{n:"Mletý len",m:"2 lžičky",k:"Suché potraviny"},{n:"Hrášek mražený",m:"1 lžíce",k:"Zelenina & ovoce"},{n:"Mrkev nastrouhaná",m:"1 ks",k:"Zelenina & ovoce"},{n:"Himalájská sůl",m:"špetka",k:"Koření a dochucovadla"}]},
+  {id:7,nazev:"Špenátová omeleta",kat:"Snídaně",kcal:387,b:35,s:3,t:25,photoUrl:PHOTO_BASE+"07_Spenatova_omeleta.png",postup:["Vejce rozmícháme se solí a semínky.","Na oleji osmažíme špenát, přilijeme vejce.","Přidáme sýr, obrátíme a dopečeme."],ing:[{n:"Vejce",m:"3 ks",k:"Mléčné výrobky"},{n:"Špenát čerstvý",m:"hrst",k:"Zelenina & ovoce"},{n:"Kozí sýr nebo feta",m:"50g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:8,nazev:"Toast s volským okem a špenátem",kat:"Snídaně",kcal:396,b:22,s:42,t:15,photoUrl:PHOTO_BASE+"08_Toust_s_volskym_okem_a_spenátem.png",postup:["Na másle opečeme špenát, osolíme.","Smažíme volská oka dle chuti.","Poskládáme na toast, posypeme parmazánem."],ing:[{n:"Celozrnný toast",m:"2 plátky",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Špenát",m:"hrst",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:9,nazev:"Míchaná vajíčka s vločkami a šunkou",kat:"Snídaně",kcal:300,b:24,s:10,t:14,photoUrl:PHOTO_BASE+"09_Michana_vajicka_s_vlockami_a_sunkou.png",postup:["Vejce rozklepneme, přidáme vločky a sůl.","Šunku nakrájíme, přidáme k vejcím.","Mícháme na pánvi do požadované konzistence."],ing:[{n:"Vejce",m:"3 ks",k:"Mléčné výrobky"},{n:"Šunka",m:"50g",k:"Maso & ryby"},{n:"Ovesné vločky",m:"2 lžíce",k:"Suché potraviny"},{n:"Pažitka",m:"1 lžíce",k:"Zelenina & ovoce"}]},
+  {id:10,nazev:"Jablečno-skořicová ovesná kaše",kat:"Snídaně",kcal:359,b:10,s:49,t:15,photoUrl:PHOTO_BASE+"10_Jablecno-skoricova_ovesna_kase.png",postup:["Vločky vaříme v mléce 5 minut.","Jablko nastrouháme a vmícháme do kaše.","Dochutíme skořicí a medem."],ing:[{n:"Ovesné vločky",m:"80g",k:"Suché potraviny"},{n:"Mléko",m:"250ml",k:"Mléčné výrobky"},{n:"Jablko",m:"1 ks",k:"Zelenina & ovoce"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:11,nazev:"Tuňáková pomazánka s lučinou",kat:"Svačiny & Pomazánky",kcal:121,b:6,s:5,t:8,photoUrl:PHOTO_BASE+"11_Tunakova_pomazanka_s_lucinou.png",postup:["Tuňáka scedíme a rozmačkáme vidličkou.","Smícháme s Lučinou a citronovou šťávou.","Dochutime solí, přidáme nasekanou pažitku."],ing:[{n:"Tuňák v olivovém oleji",m:"1 plechovka",k:"Suché potraviny"},{n:"Sýr Lučina",m:"80g",k:"Mléčné výrobky"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"}]},
+  {id:12,nazev:"Kari-mrkvová pomazánka",kat:"Svačiny & Pomazánky",kcal:405,b:12,s:13,t:34,photoUrl:PHOTO_BASE+"12_Kari-mrkvova_pomazanka.png",postup:["Mrkev uvaříme do měkka, necháme vychladnout.","V mixéru rozmixujeme s kešu a kari.","Dochutíme citronem, solí a pepřem."],ing:[{n:"Mrkev",m:"2 ks",k:"Zelenina & ovoce"},{n:"Kešu ořechy",m:"80g",k:"Suché potraviny"},{n:"Kari koření",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Citronová šťáva",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:13,nazev:"Ořechová pomazánka",kat:"Svačiny & Pomazánky",kcal:115,b:4,s:1,t:10,photoUrl:PHOTO_BASE+"13_Orechova_pomazanka.png",postup:["Ořechy nahrubo nasekáme nebo pomixujeme.","Smícháme s tvarohem a medem.","Dochutíme solí, podáváme na chlebu."],ing:[{n:"Vlašské nebo jiné ořechy",m:"50g",k:"Suché potraviny"},{n:"Tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:14,nazev:"Pórková pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:259,b:18,s:27,t:8,photoUrl:PHOTO_BASE+"14_Porkova_pomazanka_s_Cottage.png",postup:["Pórek nakrájíme najemno, osolíme.","Smícháme Cottage, tvrdý sýr a zakysanou smetanu.","Přidáme pórek, dobře promícháme."],ing:[{n:"Cottage sýr",m:"100g",k:"Mléčné výrobky"},{n:"Tvrdý sýr 30%",m:"100g",k:"Mléčné výrobky"},{n:"Pórek",m:"1 menší",k:"Zelenina & ovoce"},{n:"Zakysaná smetana",m:"20g",k:"Mléčné výrobky"}]},
+  {id:15,nazev:"Ředkvičkovo-vaječná pomazánka",kat:"Svačiny & Pomazánky",kcal:252,b:9,s:33,t:11,photoUrl:PHOTO_BASE+"15_Redkvickovo-vajecna_pomazanka.png",postup:["Vejce uvaříme natvrdo, oloupeme a rozmačkáme.","Ředkvičky nakrájíme na plátky.","Smícháme s jogurtem a pažitkou."],ing:[{n:"Vajíčka natvrdo",m:"3 ks",k:"Mléčné výrobky"},{n:"Ředkvičky",m:"5 ks",k:"Zelenina & ovoce"},{n:"Jogurt nebo smetana",m:"2 lžíce",k:"Mléčné výrobky"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"}]},
+  {id:16,nazev:"Pomazánka z červené řepy a sýru",kat:"Svačiny & Pomazánky",kcal:102,b:7,s:9,t:9,photoUrl:PHOTO_BASE+"16_Pomazanka_z_cervene_repy_a_syru.png",postup:["Vařenou řepu nakrájíme na kousky.","V mixéru rozmixujeme se sýrem a olejem.","Dochutíme solí a pepřem."],ing:[{n:"Červená řepa vařená",m:"200g",k:"Zelenina & ovoce"},{n:"Tvrdý sýr",m:"50g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:17,nazev:"Pomazánka z uzeného tofu",kat:"Svačiny & Pomazánky",kcal:132,b:10,s:4,t:8,photoUrl:PHOTO_BASE+"17_Pomazanka_z_uzeneho_tofu.png",postup:["Tofu rozmačkáme vidličkou nebo pomixujeme.","Smícháme s jogurtem a olejem.","Přidáme bylinky, dochutíme solí."],ing:[{n:"Uzené tofu",m:"1 balení",k:"Mléčné výrobky"},{n:"Bílý jogurt",m:"150g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"½ lžíce",k:"Koření a dochucovadla"},{n:"Bylinky (pažitka, petrželka)",m:"trochu",k:"Zelenina & ovoce"}]},
+  {id:18,nazev:"Jablečná pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:307,b:18,s:42,t:9,photoUrl:PHOTO_BASE+"18_Jablecna_pomazanka_s_Cottage.png",postup:["Jablko oloupeme a nastrouháme najemno.","Smícháme s Cottage, medem a skořicí.","Podáváme na chlebu nebo jako dip."],ing:[{n:"Cottage sýr",m:"250g",k:"Mléčné výrobky"},{n:"Jablko",m:"1 ks",k:"Zelenina & ovoce"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:19,nazev:"Marocká dýňovo-cizrnová polévka",kat:"Polévky",kcal:165,b:8,s:36,t:2,photoUrl:PHOTO_BASE+"19_Marocka_dynovo-cizrnova_polevka.png",postup:["Dýni nakrájíme a podusíme ve vývaru s kořením.","Přidáme cizrnu a kokosové mléko, povaříme.","Rozmixujeme do hladka, dochutíme."],ing:[{n:"Dýně Hokkaido",m:"400g",k:"Zelenina & ovoce"},{n:"Cizrna konzervovaná",m:"1 plechovka",k:"Suché potraviny"},{n:"Kokosové mléko",m:"100ml",k:"Suché potraviny"},{n:"Ras el hanout",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Zeleninový vývar",m:"700ml",k:"Suché potraviny"}]},
+  {id:20,nazev:"Zdravá květáková polévka",kat:"Polévky",kcal:206,b:6,s:26,t:8,photoUrl:PHOTO_BASE+"20_Zdrava_kvetakova_polevka.png",postup:["Cibuli osmažíme, přidáme květák a brambory.","Zalijeme vývarem a vaříme 15 minut.","Rozmixujeme, dochutíme muškátem."],ing:[{n:"Květák",m:"1 malý",k:"Zelenina & ovoce"},{n:"Brambory",m:"2 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:21,nazev:"Kedlubnová polévka",kat:"Polévky",kcal:61,b:1,s:2,t:1,photoUrl:PHOTO_BASE+"21_Kedlubnova_polevka.png",postup:["Cibuli osmažíme, přidáme nakrájenou kedlubnu.","Zalijeme vývarem, vaříme 12 minut.","Rozmixujeme, zjemníme smetanou."],ing:[{n:"Kedlubna",m:"2 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Zeleninový vývar",m:"800ml",k:"Suché potraviny"},{n:"Smetana ke šlehání",m:"2 lžíce",k:"Mléčné výrobky"}]},
+  {id:22,nazev:"Polévka s kuřecím masem a fazolemi",kat:"Polévky",kcal:172,b:24,s:10,t:4,photoUrl:PHOTO_BASE+"22_Polevka_s_kurecim_masem_a_fazolemi.png",postup:["Restujeme pórek, přidáme šalvěj.","Přilijeme vývar, přidáme kuřecí maso.","Vmícháme fazole, povaříme 5 minut."],ing:[{n:"Kuřecí prsa",m:"200g",k:"Maso & ryby"},{n:"Fazole bílé konzervované",m:"1 plechovka",k:"Suché potraviny"},{n:"Rajčata",m:"2 ks",k:"Zelenina & ovoce"},{n:"Vývar",m:"800ml",k:"Suché potraviny"}]},
+  {id:23,nazev:"Marocké kuře s citrónovým kuskusem",kat:"Hlavní jídla",kcal:348,b:34,s:37,t:7,photoUrl:PHOTO_BASE+"23_Marocke_kure_s_citronovym_kuskusem.png",postup:["Kuře obalíme kořením, opečeme na oleji.","Přidáme rajčata a vývar, dusíme 20 minut.","Kuskus zalijeme vroucí vodou s citronem."],ing:[{n:"Kuřecí prsa",m:"300g",k:"Maso & ryby"},{n:"Kuskus",m:"150g",k:"Suché potraviny"},{n:"Citron",m:"1 ks",k:"Zelenina & ovoce"},{n:"Ras el hanout",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:24,nazev:"Kuřecí závitky se špenátem a kozím sýrem",kat:"Hlavní jídla",kcal:445,b:19,s:52,t:16,photoUrl:PHOTO_BASE+"24_Kureci_zavitky_se_spenátem_a_kozim_syrem.png",postup:["Prsa naklepeme, plníme špenátem a sýrem.","Srolujeme, zajistíme párátky, opečeme.","Zapečeme v troubě 25 minut na 180 °C."],ing:[{n:"Kuřecí prsa",m:"300g",k:"Maso & ryby"},{n:"Špenát čerstvý",m:"100g",k:"Zelenina & ovoce"},{n:"Kozí sýr",m:"80g",k:"Mléčné výrobky"},{n:"Rýže nebo quinoa",m:"150g",k:"Suché potraviny"}]},
+  {id:25,nazev:"Kuřecí paličky s hráškovým pyré",kat:"Hlavní jídla",kcal:517,b:37,s:46,t:18,photoUrl:PHOTO_BASE+"25_Kureci_palicky_s_hraskovym_pyre.png",postup:["Paličky okořeníme a pečeme 40 minut na 200 °C.","Hrášek uvaříme s brambory do měkka.","Rozmixujeme s máslem na hladké pyré."],ing:[{n:"Kuřecí paličky",m:"4 ks",k:"Maso & ryby"},{n:"Hrášek mražený",m:"300g",k:"Zelenina & ovoce"},{n:"Brambory",m:"200g",k:"Zelenina & ovoce"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"}]},
+  {id:26,nazev:"Plněná krůtí prsa s prosciutto",kat:"Hlavní jídla",kcal:675,b:50,s:57,t:27,photoUrl:PHOTO_BASE+"26_Plnena_kruti_prsa_s_prosciutto.png",postup:["Prsa naklepeme, plníme brokolicovým pyré.","Přeložíme, zabalíme do prosciutta.","Opečeme na oleji a dopečeme v troubě."],ing:[{n:"Krůtí prsa",m:"400g",k:"Maso & ryby"},{n:"Prosciutto",m:"6 plátků",k:"Maso & ryby"},{n:"Špenát",m:"100g",k:"Zelenina & ovoce"},{n:"Batáty",m:"300g",k:"Zelenina & ovoce"}]},
+  {id:27,nazev:"Zelno-krůtí karbanátky",kat:"Hlavní jídla",kcal:267,b:35,s:16,t:7,photoUrl:PHOTO_BASE+"27_Zelno-kruti_karbanatky.png",postup:["Zelí nastrouháme, smícháme s mletým masem.","Přidáme vejce, vločky, koření, tvarujeme.","Smažíme na pánvi dozlatova z obou stran."],ing:[{n:"Krůtí mleté maso",m:"400g",k:"Maso & ryby"},{n:"Zelí bílé",m:"200g",k:"Zelenina & ovoce"},{n:"Vejce",m:"1 ks",k:"Mléčné výrobky"},{n:"Ovesné vločky",m:"3 lžíce",k:"Suché potraviny"}]},
+  {id:28,nazev:"Losos s cizrnovou kaší",kat:"Hlavní jídla",kcal:384,b:28,s:25,t:25,photoUrl:PHOTO_BASE+"28_Losos_s_cizrnovou_kasi.png",postup:["Lososa okořeníme a pečeme 20 minut na 180 °C.","Cizrnu scedíme a rozmačkáme vidličkou.","Přidáme citron, olivový olej a sůl."],ing:[{n:"Losos filet",m:"200g",k:"Maso & ryby"},{n:"Cizrna konzervovaná",m:"1 plechovka",k:"Suché potraviny"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:29,nazev:"Losos na másle s anglickou zeleninou",kat:"Hlavní jídla",kcal:595,b:35,s:13,t:54,photoUrl:PHOTO_BASE+"29_Losos_na_masle_s_anglickou_zeleninou.png",postup:["Lososa opečeme na másle 3 minuty z každé strany.","Brokolici a hrášek uvaříme v páře 8 minut.","Servírujeme s citronem a solí."],ing:[{n:"Losos filet",m:"200g",k:"Maso & ryby"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"},{n:"Brokolice",m:"200g",k:"Zelenina & ovoce"},{n:"Hrášek",m:"100g",k:"Zelenina & ovoce"}]},
+  {id:30,nazev:"Lososové kapsičky",kat:"Hlavní jídla",kcal:794,b:43,s:66,t:29,photoUrl:PHOTO_BASE+"30_Lososove_kapsicky.png",postup:["Lososa smícháme se špenátem a cream cheese.","Listové těsto nakrájíme, plníme náplní.","Přeložíme, potřeme vejcem, pečeme 20 minut."],ing:[{n:"Losos",m:"200g",k:"Maso & ryby"},{n:"Listové těsto",m:"1 balení",k:"Suché potraviny"},{n:"Špenát",m:"100g",k:"Zelenina & ovoce"},{n:"Cream cheese",m:"80g",k:"Mléčné výrobky"}]},
+  {id:31,nazev:"Treska na másle s dýňovým překvapením",kat:"Hlavní jídla",kcal:513,b:36,s:22,t:32,photoUrl:PHOTO_BASE+"31_Treska_na_masle_s_dynowym_prekvapenim.png",postup:["Tresku posolíme, pokapeme citronem, upečeme.","Dýni nakrájíme, pokapeme olejem, pečeme.","Dip připravíme smícháním avokáda a Cottage."],ing:[{n:"Treska filet",m:"300g",k:"Maso & ryby"},{n:"Dýně Hokkaido",m:"300g",k:"Zelenina & ovoce"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"}]},
+  {id:32,nazev:"Ryba na tymiánu se zeleninou",kat:"Hlavní jídla",kcal:415,b:31,s:43,t:12,photoUrl:PHOTO_BASE+"32_Ryba_na_tymanu_se_zeleninou.png",postup:["Rybu okořeníme tymiánem, solí a pepřem.","Batáty a brokolici nakrájíme, pokapeme olejem.","Vše zapečeme společně 25 minut na 200 °C."],ing:[{n:"Bílá ryba (treska/pstruh)",m:"300g",k:"Maso & ryby"},{n:"Brokolice",m:"200g",k:"Zelenina & ovoce"},{n:"Batáty",m:"200g",k:"Zelenina & ovoce"},{n:"Tymián",m:"trochu",k:"Koření a dochucovadla"}]},
+  {id:33,nazev:"Mrkvový perkelt",kat:"Hlavní jídla",kcal:161,b:7,s:28,t:7,photoUrl:PHOTO_BASE+"33_Mrkvovy_perkelt.png",postup:["Cibuli osmažíme, přidáme papriku.","Mrkev nakrájíme, přidáme s protlakem.","Podlijeme vodou, dusíme 20 minut."],ing:[{n:"Mrkev",m:"400g",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Paprika mletá",m:"1 lžíce",k:"Koření a dochucovadla"},{n:"Rajčatový protlak",m:"2 lžíce",k:"Suché potraviny"}]},
+  {id:34,nazev:"Sójová čína",kat:"Hlavní jídla",kcal:273,b:36,s:25,t:3,photoUrl:PHOTO_BASE+"34_Sojova_cina.png",postup:["Maso nakrájíme na proužky, opečeme na woku.","Přidáme zeleninu a restujeme 5 minut.","Přilijeme sójovou omáčku, promícháme."],ing:[{n:"Kuřecí nebo krůtí prsa",m:"300g",k:"Maso & ryby"},{n:"Sójová omáčka",m:"3 lžíce",k:"Koření a dochucovadla"},{n:"Zelenina (paprika, cibule, mrkev)",m:"300g",k:"Zelenina & ovoce"},{n:"Těstoviny nebo rýže",m:"150g",k:"Suché potraviny"}]},
+  {id:35,nazev:"Bramborová pánev se zeleninou",kat:"Hlavní jídla",kcal:407,b:27,s:46,t:12,photoUrl:PHOTO_BASE+"35_Bramborova_panev_se_zeleninou.png",postup:["Brambory uvaříme, nakrájíme na kostky.","Na pánvi osmažíme papiku a cibuli.","Přidáme brambory a rozklepneme vejce."],ing:[{n:"Brambory",m:"300g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Paprika",m:"1 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"}]},
+  {id:36,nazev:"Zapečená pohanka se zeleninou",kat:"Hlavní jídla",kcal:350,b:9,s:56,t:9,photoUrl:PHOTO_BASE+"36_Zapecena_pohanka_se_zeleninou.png",postup:["Pohanku uvaříme, smícháme se zeleninou.","Přidáme vejce, přeneseme do pekáče.","Posypeme sýrem, zapečeme 20 minut."],ing:[{n:"Pohanka",m:"200g",k:"Suché potraviny"},{n:"Zelenina dle sezóny",m:"300g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Sýr strouhaný",m:"50g",k:"Mléčné výrobky"}]},
+  {id:37,nazev:"Slaný bramborový koláč s hovězím masem",kat:"Hlavní jídla",kcal:240,b:18,s:9,t:14,photoUrl:PHOTO_BASE+"37_Slany_bramborovy_kolac_s_hovezim_masem.png",postup:["Brambory nastrouháme, smícháme s vejci.","Cibuli osmažíme s mletým masem.","Vrstvíme základ, maso, základ, zapečeme."],ing:[{n:"Mleté hovězí maso",m:"300g",k:"Maso & ryby"},{n:"Brambory",m:"400g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"}]},
+  {id:38,nazev:"Brokolicovo-jahelná miska",kat:"Hlavní jídla",kcal:445,b:19,s:52,t:16,photoUrl:PHOTO_BASE+"38_Brokolicovo-jahelna_miska.png",postup:["Jáhly uvaříme dle návodu, propláchneme.","Brokolici a tofu opečeme na oleji s kořením.","Vše smícháme, dochutíme a přidáme kešu."],ing:[{n:"Jáhly nebo quinoa",m:"100g",k:"Suché potraviny"},{n:"Brokolice",m:"½ malé",k:"Zelenina & ovoce"},{n:"Tofu",m:"½ balení",k:"Mléčné výrobky"},{n:"Kešu ořechy",m:"2 lžíce",k:"Suché potraviny"}]},
+  {id:39,nazev:"Orientální quinoový salát s lososem",kat:"Lehká jídla & Saláty",kcal:630,b:41,s:44,t:31,photoUrl:PHOTO_BASE+"39_Orientalni_quinoovy_salat_s_lososem.png",postup:["Quinou uvaříme, necháme vychladnout.","Lososa pečeme 15 minut, nakrájíme.","Smícháme s avokádem a sójovou omáčkou."],ing:[{n:"Quinoa",m:"150g",k:"Suché potraviny"},{n:"Losos",m:"150g",k:"Maso & ryby"},{n:"Avokádo",m:"1 ks",k:"Zelenina & ovoce"},{n:"Sójová omáčka",m:"2 lžíce",k:"Koření a dochucovadla"}]},
+  {id:40,nazev:"Rukolový salát s mozzarellou",kat:"Lehká jídla & Saláty",kcal:333,b:25,s:25,t:14,photoUrl:PHOTO_BASE+"40_Rukolovy_salat_s_mozzarellou.png",postup:["Rukolu omyjeme, cherry rajčata překrájíme.","Mozzarellu natrheme na kousky.","Promícháme, pokapeme olejem a octem."],ing:[{n:"Rukola",m:"100g",k:"Zelenina & ovoce"},{n:"Mozzarella",m:"125g",k:"Mléčné výrobky"},{n:"Cherry rajčata",m:"150g",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:41,nazev:"Jahlový salát se zeleninou",kat:"Lehká jídla & Saláty",kcal:246,b:7,s:44,t:4,photoUrl:PHOTO_BASE+"41_Jahlovy_salat_se_zeleninou.png",postup:["Jáhly uvaříme, propláchneme a vychladíme.","Okurku a papriku nakrájíme na kostky.","Smícháme, přidáme petržel a zálivku."],ing:[{n:"Jáhly",m:"100g",k:"Suché potraviny"},{n:"Okurka",m:"½ ks",k:"Zelenina & ovoce"},{n:"Paprika",m:"1 ks",k:"Zelenina & ovoce"},{n:"Petržel",m:"trochu",k:"Zelenina & ovoce"}]},
+  {id:42,nazev:"Čočkový salát s hořčičným dipem",kat:"Lehká jídla & Saláty",kcal:390,b:22,s:51,t:12,photoUrl:PHOTO_BASE+"42_Cockovy_salat_s_horcicnym_dipem.png",postup:["Čočku uvaříme, scedíme a vychladíme.","Rajčata nakrájíme, přidáme k čočce.","Zálivku připravíme z hořčice a olivového oleje."],ing:[{n:"Červená čočka",m:"150g",k:"Suché potraviny"},{n:"Rajčata",m:"2 ks",k:"Zelenina & ovoce"},{n:"Hořčice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:43,nazev:"Salát z černé čočky s Hokkaido a tofu",kat:"Lehká jídla & Saláty",kcal:532,b:29,s:42,t:26,photoUrl:PHOTO_BASE+"43_Salat_z_cerne_cocky_s_Hokkajdo_a_tofu.png",postup:["Hokkaido nakrájíme a upečeme do měkka.","Černou čočku uvaříme, scedíme.","Smícháme s uzeným tofu a zálivkou."],ing:[{n:"Černá čočka",m:"150g",k:"Suché potraviny"},{n:"Dýně Hokkaido",m:"200g",k:"Zelenina & ovoce"},{n:"Tofu uzené",m:"100g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"2 lžíce",k:"Koření a dochucovadla"}]},
+  {id:44,nazev:"Těstovinový salát s prosciuttem",kat:"Lehká jídla & Saláty",kcal:535,b:34,s:63,t:18,photoUrl:PHOTO_BASE+"44_Testovinovy_salat_s_prosciuttem.png",postup:["Těstoviny uvaříme, necháme vychladnout.","Prosciutto upečeme v troubě do křupava.","Smícháme s rajčátky, rukolou a zálivkou."],ing:[{n:"Těstoviny celozrnné",m:"200g",k:"Suché potraviny"},{n:"Prosciutto",m:"80g",k:"Maso & ryby"},{n:"Cherry rajčata",m:"150g",k:"Zelenina & ovoce"},{n:"Rukolová nebo baby špenát",m:"50g",k:"Zelenina & ovoce"}]},
+  {id:45,nazev:"Zdravý hamburger",kat:"Hlavní jídla",kcal:434,b:39,s:36,t:15,photoUrl:PHOTO_BASE+"45_Zdravy_hamburger.png",postup:["Mleté maso ochutíme, vytvarujeme burger.","Grilujeme nebo smažíme 4 minuty z každé strany.","Poskládáme v housce se salátem a rajčetem."],ing:[{n:"Hovězí nebo krůtí mleté maso",m:"150g",k:"Maso & ryby"},{n:"Celozrnná burger houska",m:"1 ks",k:"Suché potraviny"},{n:"Listový salát",m:"hrst",k:"Zelenina & ovoce"},{n:"Rajče",m:"1 ks",k:"Zelenina & ovoce"}]},
+  {id:46,nazev:"Cuketové nudle",kat:"Hlavní jídla",kcal:484,b:36,s:57,t:11,photoUrl:PHOTO_BASE+"46_Cuketove_nudle.png",postup:["Cuketu nastrouháme na spiralizéru na nudle.","Maso nebo tofu opečeme s rajčatovou omáčkou.","Smícháme s cuketovými nudlemi, posypeme."],ing:[{n:"Cuketa",m:"2 velké",k:"Zelenina & ovoce"},{n:"Kuřecí prsa nebo tofu",m:"200g",k:"Maso & ryby"},{n:"Rajčatová omáčka",m:"150ml",k:"Suché potraviny"},{n:"Parmazán strouhaný",m:"20g",k:"Mléčné výrobky"}]},
+  {id:47,nazev:"Müsli čtverečky",kat:"Sladká tečka",kcal:133,b:6,s:16,t:5,photoUrl:PHOTO_BASE+"47_Musli_ctverecky.png",postup:["Vločky smícháme s ořechy, olejem a sirupem.","Přidáme vejce, promícháme do pevné hmoty.","Rozetřeme do pekáče, pečeme 25 minut."],ing:[{n:"Ovesné vločky (nepomleté i jemné)",m:"3 šálky",k:"Suché potraviny"},{n:"Ořechy a semínka (lískové, lněné, slunečnicové)",m:"½ šálku",k:"Suché potraviny"},{n:"Kokosový olej",m:"¼ šálku",k:"Koření a dochucovadla"},{n:"Med nebo javorový sirup",m:"3 lžíce",k:"Suché potraviny"},{n:"Vejce",m:"3 ks",k:"Mléčné výrobky"}]},
+  {id:48,nazev:"Šťavnatý banánový chléb",kat:"Sladká tečka",kcal:181,b:7,s:29,t:3,photoUrl:PHOTO_BASE+"48_Stavnaty_bananovy_chleb.png",postup:["Banány rozmačkáme, smícháme s vejci a medem.","Vmícháme ovesné vločky do těsta.","Pečeme v troubě 35 minut na 175 °C."],ing:[{n:"Banány přezrálé",m:"3 ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"200g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Med",m:"2 lžíce",k:"Suché potraviny"}]},
+  {id:49,nazev:"Domácí ovesné cookies",kat:"Sladká tečka",kcal:68,b:2,s:8,t:6,photoUrl:PHOTO_BASE+"49_Domaci_ovesne_cookies.png",postup:["Banán rozmačkáme, smícháme s vločkami.","Přidáme ořechové máslo a čokoládu.","Tvarujeme cookies, pečeme 12 minut na 180 °C."],ing:[{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Banán",m:"1 ks",k:"Zelenina & ovoce"},{n:"Ořechové máslo",m:"2 lžíce",k:"Suché potraviny"},{n:"Čokoládové lupínky",m:"hrst",k:"Suché potraviny"}]},
+  {id:50,nazev:"Jablečný vločkovek",kat:"Sladká tečka",kcal:315,b:8,s:36,t:7,photoUrl:PHOTO_BASE+"50_Jablecny_vlockovek.png",postup:["Jablka oloupeme, nastrouháme a smícháme s vločky.","Přidáme vejce, skořici a sladidlo.","Pečeme v pekáči 30 minut na 180 °C."],ing:[{n:"Jablka",m:"3 ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:51,nazev:"Proteinový koláč kakao",kat:"Sladká tečka",kcal:166,b:10,s:15,t:7,photoUrl:PHOTO_BASE+"51_Proteinovy_kolac_kakao.png",postup:["Vločky pomixujeme s proteinem a kakaem.","Přidáme banán a vejce, promícháme.","Pečeme v pekáči 25 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"100g",k:"Suché potraviny"},{n:"Protein",m:"60g",k:"Suché potraviny"},{n:"Banán",m:"1 ks",k:"Zelenina & ovoce"},{n:"Vejce",m:"4 ks",k:"Mléčné výrobky"},{n:"Kakao",m:"1 lžíce",k:"Suché potraviny"}]},
+  {id:52,nazev:"Proteinový koláč malina",kat:"Sladká tečka",kcal:444,b:33,s:62,t:6,photoUrl:PHOTO_BASE+"52_Proteinovy_kolac_malina.png",postup:["Vločky smícháme s proteinem a bílky.","Vmícháme maliny, přeneseme do formy.","Pečeme 25 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"80g",k:"Suché potraviny"},{n:"Protein",m:"15g",k:"Suché potraviny"},{n:"Bílky",m:"3 ks",k:"Mléčné výrobky"},{n:"Maliny",m:"hrst",k:"Zelenina & ovoce"}]},
+  {id:53,nazev:"Ovocné proteinové muffiny",kat:"Sladká tečka",kcal:130,b:7,s:20,t:2,photoUrl:PHOTO_BASE+"53_Ovocne_proteinove_muffiny.png",postup:["Vločky smícháme s tvarohem a vejci.","Vmícháme ovoce, naplníme formy na muffiny.","Pečeme 22 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Ovoce (borůvky, maliny)",m:"150g",k:"Zelenina & ovoce"}]},
+  {id:54,nazev:"Muffinky Cuky Luky",kat:"Sladká tečka",kcal:68,b:5,s:1,t:4,photoUrl:PHOTO_BASE+"54_Muffinky_Cuky_Luky.png",postup:["Vejce vyšleháme s tvarohem a sladidlem.","Přidáme vanilku, naplníme formy.","Pečeme 18 minut na 175 °C."],ing:[{n:"Vejce",m:"4 ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"200g",k:"Mléčné výrobky"},{n:"Erythritol nebo med",m:"2 lžíce",k:"Koření a dochucovadla"},{n:"Vanilka",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:55,nazev:"Svěží FIT pudink",kat:"Sladká tečka",kcal:580,b:11,s:61,t:28,photoUrl:PHOTO_BASE+"55_Svezi_FIT_pudink.png",postup:["Chia semínka smícháme s kokosovým mlékem.","Přidáme med, zamícháme a necháme 4 hodiny.","Servírujeme s čerstvým ovocem navrchu."],ing:[{n:"Kokosové mléko",m:"400ml",k:"Suché potraviny"},{n:"Chia semínka",m:"4 lžíce",k:"Suché potraviny"},{n:"Ovoce (mango, borůvky)",m:"150g",k:"Zelenina & ovoce"},{n:"Med",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:56,nazev:"Tvaroh s lesním ovocem",kat:"Sladká tečka",kcal:246,b:19,s:34,t:6,photoUrl:PHOTO_BASE+"56_Tvaroh_s_lesnim_ovocem.png",postup:["Ovoce rozmražíme nebo omyjeme.","Tvaroh smícháme se stévií.","Ozdobíme ovocem a podáváme."],ing:[{n:"Tvaroh nízkotučný",m:"200g",k:"Mléčné výrobky"},{n:"Lesní ovoce (mražené nebo čerstvé)",m:"150g",k:"Zelenina & ovoce"},{n:"Med nebo sirup",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:57,nazev:"Pohanková kaše s brusinkami a mandlemi",kat:"Sladká tečka",kcal:349,b:13,s:47,t:13,photoUrl:PHOTO_BASE+"57_Pohankova_kase_s_brusinkamy_a_mandlemi.png",postup:["Pohanku vaříme v mléce 15 minut.","Odstavíme, přidáme brusinky a promícháme.","Ozdobíme mandlemi a podáváme."],ing:[{n:"Pohanka loupaná",m:"100g",k:"Suché potraviny"},{n:"Mléko",m:"250ml",k:"Mléčné výrobky"},{n:"Brusinky sušené",m:"2 lžíce",k:"Suché potraviny"},{n:"Mandle",m:"hrst",k:"Suché potraviny"}]},
+  {id:58,nazev:"Ovocné jáhly",kat:"Sladká tečka",kcal:521,b:20,s:69,t:18,photoUrl:PHOTO_BASE+"58_Ovocne_jahly.png",postup:["Jáhly spaříme, uvaříme v poměru 1:2.","Jablka a hrušky podusíme se skořicí.","Vrstvíme jáhly, ovoce a tvarohový krém."],ing:[{n:"Jáhly",m:"100g",k:"Suché potraviny"},{n:"Ovocné smoothie",m:"200ml",k:"Zelenina & ovoce"},{n:"Ricotta nebo tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Ovoce (jahody, borůvky)",m:"150g",k:"Zelenina & ovoce"}]},
+];
+
+const DAYS = ["Pondělí","Úterý","Středa","Čtvrtek","Pátek","Sobota","Neděle"];
+const MEALS = [
+  {key:"snidane", label:"Snídaně", cats:["Snídaně"]},
+  {key:"svacina1", label:"Svačina", cats:["Svačiny & Pomazánky"]},
+  {key:"obed", label:"Oběd", cats:["Hlavní jídla","Polévky","Lehká jídla & Saláty"]},
+  {key:"svacina2", label:"Svačina 2", cats:["Svačiny & Pomazánky","Sladká tečka"]},
+  {key:"vecere", label:"Večeře", cats:["Hlavní jídla","Lehká jídla & Saláty","Polévky"]},
+];
+
+const CATS_ORDER = ["Zelenina & ovoce","Maso & ryby","Mléčné výrobky","Suché potraviny","Koření a dochucovadla","Ostatní"];
+
+// Stav
+const selection = {}; // dayIndex -> {mealKey -> recipeId}
+
+function buildOptions(categories) {
+  let html = '<option value="">— nevybráno —</option>';
+  // Hlavní kategorie v požadovaném pořadí
+  categories.forEach(cat => {
+    const rs = RECIPES.filter(r => r.kat === cat);
+    if (!rs.length) return;
+    html += `<optgroup label="${cat}">`;
+    rs.forEach(r => { html += `<option value="${r.id}">${r.nazev}</option>`; });
+    html += '</optgroup>';
+  });
+  // Ostatní recepty mimo hlavní kategorie
+  const remaining = RECIPES.filter(r => !categories.includes(r.kat));
+  if (remaining.length) {
+    const remGroups = {};
+    remaining.forEach(r => {
+      if (!remGroups[r.kat]) remGroups[r.kat] = [];
+      remGroups[r.kat].push(r);
+    });
+    html += '<optgroup label="─── Další jídla ───" disabled></optgroup>';
+    Object.entries(remGroups).forEach(([cat, rs]) => {
+      html += `<optgroup label="${cat}">`;
+      rs.forEach(r => { html += `<option value="${r.id}">${r.nazev}</option>`; });
+      html += '</optgroup>';
+    });
+  }
+  return html;
+}
+
+function initDays() {
+  const grid = document.getElementById('days-grid');
+  DAYS.forEach((day, di) => {
+    selection[di] = {};
+    let mealsHtml = MEALS.map(m => `
+      <div class="meal-select">
+        <label>${m.label}</label>
+        <select onchange="onSelect(${di},'${m.key}',this.value)">
+          ${buildOptions(m.cats)}
+        </select>
+      </div>`).join('');
+    grid.innerHTML += `
+      <div class="day-col">
+        <div class="day-macro-bubble" id="bubble-${di}">
+          <div class="bubble-label">Denní příjem</div>
+          <div class="bubble-kcal-row">
+            <span class="bubble-kcal-val" id="d${di}-kcal">—</span>
+            <span class="bubble-kcal-unit" id="d${di}-kcal-unit" style="display:none">kcal</span>
+          </div>
+          <div class="bubble-kj" id="d${di}-kj" style="display:none"></div>
+          <hr class="bubble-divider">
+          <div class="bubble-macros-row">
+            <div class="bubble-macro-col">
+              <div class="macro-val" id="d${di}-b">—</div>
+              <div class="macro-lbl">Bílk.</div>
+            </div>
+            <div class="bubble-macro-col">
+              <div class="macro-val" id="d${di}-s">—</div>
+              <div class="macro-lbl">Sach.</div>
+            </div>
+            <div class="bubble-macro-col">
+              <div class="macro-val" id="d${di}-t">—</div>
+              <div class="macro-lbl">Tuky</div>
+            </div>
+          </div>
+        </div>
+        <div class="day-card">
+          <h3>${day}</h3>
+          ${mealsHtml}
+        </div>
+      </div>`;
+  });
+}
+
+function onSelect(dayIdx, mealKey, val) {
+  selection[dayIdx][mealKey] = val ? parseInt(val) : null;
+  updateSummary();
+}
+
+function getDayMacros(dayIdx) {
+  const m = {kcal:0, b:0, s:0, t:0};
+  Object.values(selection[dayIdx] || {}).forEach(rid => {
+    if (!rid) return;
+    const r = RECIPES.find(x => x.id === rid);
+    if (r) { m.kcal += r.kcal; m.b += r.b; m.s += r.s; m.t += r.t; }
+  });
+  return m;
+}
+
+function updateSummary() {
+  let total = {kcal:0, b:0, s:0, t:0};
+  DAYS.forEach((_, di) => {
+    const m = getDayMacros(di);
+    const kcalEl   = document.getElementById(`d${di}-kcal`);
+    const kcalUnit = document.getElementById(`d${di}-kcal-unit`);
+    const kjEl     = document.getElementById(`d${di}-kj`);
+    const bEl      = document.getElementById(`d${di}-b`);
+    const sEl      = document.getElementById(`d${di}-s`);
+    const tEl      = document.getElementById(`d${di}-t`);
+    if (m.kcal === 0) {
+      kcalEl.textContent = '—';
+      kcalUnit.style.display = 'none';
+      kjEl.style.display = 'none';
+      bEl.textContent = '—';
+      sEl.textContent = '—';
+      tEl.textContent = '—';
+    } else {
+      kcalEl.textContent = m.kcal;
+      kcalUnit.style.display = '';
+      kjEl.textContent = Math.round(m.kcal * 4.184) + ' kJ';
+      kjEl.style.display = '';
+      bEl.textContent = m.b + 'g';
+      sEl.textContent = m.s + 'g';
+      tEl.textContent = m.t + 'g';
+    }
+    total.kcal += m.kcal; total.b += m.b; total.s += m.s; total.t += m.t;
+  });
+  const avgKcal = Math.round(total.kcal / 7);
+  const avgB = Math.round(total.b / 7);
+  const avgS = Math.round(total.s / 7);
+  const avgT = Math.round(total.t / 7);
+  document.getElementById('sum-kcal').textContent = avgKcal;
+  document.getElementById('sum-b').textContent = avgB + 'g';
+  document.getElementById('sum-s').textContent = avgS + 'g';
+  document.getElementById('sum-t').textContent = avgT + 'g';
+  document.getElementById('sum-kcal-week').textContent = total.kcal + ' kcal celkem / týden';
+  document.getElementById('sum-b-week').textContent = total.b + 'g celkem / týden';
+  document.getElementById('sum-s-week').textContent = total.s + 'g celkem / týden';
+  document.getElementById('sum-t-week').textContent = total.t + 'g celkem / týden';
+}
+
+function generateShoppingList() {
+  const aggregated = {}; // {nazev -> {mnozstvi: [], kategorie}}
+  DAYS.forEach((_, di) => {
+    Object.values(selection[di] || {}).forEach(rid => {
+      if (!rid) return;
+      const r = RECIPES.find(x => x.id === rid);
+      if (!r) return;
+      r.ing.forEach(ing => {
+        const key = ing.n.toLowerCase();
+        if (!aggregated[key]) aggregated[key] = {nazev: ing.n, kat: ing.k, mnozstvi: []};
+        aggregated[key].mnozstvi.push(ing.m);
+      });
+    });
+  });
+
+  const byKat = {};
+  CATS_ORDER.forEach(k => byKat[k] = []);
+  Object.values(aggregated).forEach(item => {
+    const kat = byKat[item.kat] ? item.kat : "Ostatní";
+    byKat[kat].push(item);
+  });
+
+  let html = '';
+  CATS_ORDER.forEach(kat => {
+    if (!byKat[kat] || byKat[kat].length === 0) return;
+    const katEmoji = {"Zelenina & ovoce":"🥦","Maso & ryby":"🍗","Mléčné výrobky":"🧀","Suché potraviny":"🌾","Koření a dochucovadla":"🧂","Ostatní":"📦"}[kat] || "📦";
+    let items = byKat[kat].map(item => {
+      const mnozstvi = [...new Set(item.mnozstvi)].join(', ');
+      return `<div class="shopping-item" id="item-${item.nazev.replace(/\s/g,'_')}">
+        <input type="checkbox" onchange="toggleItem(this)">
+        <span>${item.nazev}</span>
+        <span style="margin-left:auto;color:var(--text-muted);font-size:12px;">${mnozstvi}</span>
+      </div>`;
+    }).join('');
+    html += `<div class="shopping-category"><h3>${katEmoji} ${kat}</h3>${items}</div>`;
+  });
+
+  if (!html) { alert('Nejprve vyber aspoň jedno jídlo.'); return; }
+  document.getElementById('shopping-lists').innerHTML = html;
+  const sec = document.getElementById('shopping-section');
+  sec.classList.add('visible');
+  sec.scrollIntoView({behavior:'smooth'});
+}
+
+function toggleItem(cb) {
+  const item = cb.closest('.shopping-item');
+  item.classList.toggle('checked', cb.checked);
+}
+
+function resetAll() {
+  DAYS.forEach((_, di) => { selection[di] = {}; });
+  document.querySelectorAll('.day-card select').forEach(s => s.value = '');
+  updateSummary();
+  document.getElementById('shopping-section').classList.remove('visible');
+}
+
+// Init
+initDays();
+updateSummary();
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'jidelnicek') renderJidelnicek();
+}
+
+// ─── JÍDELNÍČEK ──────────────────────────────────────────────────────────────
+let activeDayJidelnicek = 0;
+
+function renderJidelnicek() {
+  const panel = document.getElementById('tab-jidelnicek');
+  const hasAny = DAYS.some((_, di) => Object.values(selection[di] || {}).some(v => v));
+
+  if (!hasAny) {
+    panel.innerHTML = `
+      <div class="jidelnicek-empty">
+        <div class="ei">🥗</div>
+        <h3>Jídelníček je prázdný</h3>
+        <p>Nejprve si naplánuj jídla na týden<br>v záložce <strong>Plánovač jídel</strong>.</p>
+      </div>`;
+    return;
+  }
+
+  // Pokud aktivní den nemá jídla (a nejsme v týdenním pohledu), přeskoč na první vyplněný den
+  if (activeDayJidelnicek !== -1 && !Object.values(selection[activeDayJidelnicek] || {}).some(v => v)) {
+    activeDayJidelnicek = DAYS.findIndex((_, di) => Object.values(selection[di] || {}).some(v => v));
+  }
+
+  // Postav statický skelet záložky (jednou), obsah aktualizuj zvlášť
+  panel.innerHTML = `
+    <div class="jidelnicek-actions">
+      <button id="btn-print-day" class="btn btn-primary" onclick="printCurrentDay()">🖨️ Tisk dne / Uložit jako PDF</button>
+      <button id="btn-print-week" class="btn btn-primary" onclick="printWeek()" style="display:none">🗓️ Tisk týdne / Uložit jako PDF</button>
+    </div>
+    <div class="day-pills" id="jidelnicek-pills"></div>
+    <div id="jidelnicek-content"></div>
+    <div class="print-day-view" id="print-day-view"></div>
+    <div class="modal-overlay" id="recipe-modal" onclick="closeModalOverlay(event)">
+      <div class="modal-wrap">
+        <button class="modal-close-btn"
+          onclick="document.getElementById('recipe-modal').classList.remove('open')">✕</button>
+        <div class="modal-box" id="modal-box-content"></div>
+      </div>
+    </div>`;
+
+  updateJidelnicekPills();
+  updateJidelnicekContent();
+}
+
+function updateJidelnicekPills() {
+  const el = document.getElementById('jidelnicek-pills');
+  if (!el) return;
+  el.innerHTML = [
+    ...DAYS.map((day, di) => {
+      const has = Object.values(selection[di] || {}).some(v => v);
+      const isActive = di === activeDayJidelnicek;
+      return `<button class="day-pill ${isActive ? 'active' : ''} ${!has ? 'empty' : ''}"
+        onclick="setJidelnicekDay(${di})">${day}</button>`;
+    }),
+    `<button class="day-pill ${activeDayJidelnicek === -1 ? 'active' : ''}"
+      onclick="setJidelnicekDay(-1)">📋 Celý týden</button>`
+  ].join('');
+}
+
+function updateJidelnicekContent() {
+  const el = document.getElementById('jidelnicek-content');
+  if (!el) return;
+  const isWeek = activeDayJidelnicek === -1;
+  if (isWeek) {
+    el.innerHTML = buildWeekOverview();
+  } else {
+    el.innerHTML = `<div class="meal-cards-grid">${buildDayCards(activeDayJidelnicek)}</div>`;
+  }
+  // Přepni viditelnost tlačítek tisku
+  const btnDay = document.getElementById('btn-print-day');
+  const btnWeek = document.getElementById('btn-print-week');
+  if (btnDay) btnDay.style.display = isWeek ? 'none' : '';
+  if (btnWeek) btnWeek.style.display = isWeek ? '' : 'none';
+}
+
+function setPrintPage(css) {
+  let el = document.getElementById('dynamic-print-page');
+  if (!el) { el = document.createElement('style'); el.id = 'dynamic-print-page'; document.head.appendChild(el); }
+  el.textContent = css;
+}
+
+function printWeek() {
+  setPrintPage('@page { size: A4 landscape; margin: 6mm; }');
+  document.body.classList.add('printing-week');
+  setTimeout(() => {
+    window.print();
+    document.body.classList.remove('printing-week');
+  }, 150);
+}
+
+function buildDayCards(di) {
+  return MEALS.map(m => {
+    const rid = selection[di]?.[m.key];
+    if (!rid) return '';
+    const r = RECIPES.find(x => x.id === rid);
+    if (!r) return '';
+    return `<div class="meal-card" onclick="openRecipeModal(${r.id})">
+      <img class="meal-card-photo" src="${r.photoUrl}" alt="${r.nazev}"
+           onerror="this.style.background='var(--green-100)'">
+      <div class="meal-card-body">
+        <div class="meal-card-type">${m.label}</div>
+        <div class="meal-card-name">${r.nazev}</div>
+        <div class="meal-card-kcal">${r.kcal} <span>kcal</span></div>
+        <div class="meal-card-macros">
+          <span>B: <b>${r.b}g</b></span>
+          <span>S: <b>${r.s}g</b></span>
+          <span>T: <b>${r.t}g</b></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildWeekOverview() {
+  const cols = DAYS.map((day, di) => {
+    const meals = MEALS.map(m => {
+      const rid = selection[di]?.[m.key];
+      if (!rid) return '';
+      const r = RECIPES.find(x => x.id === rid);
+      if (!r) return '';
+      return `<div class="week-meal-item" onclick="openRecipeModal(${r.id})">
+        <div class="week-meal-type">${m.label}</div>
+        <div class="week-meal-name">${r.nazev}</div>
+        <div class="week-meal-kcal">${r.kcal} kcal</div>
+      </div>`;
+    }).join('');
+    if (!meals) {
+      return `<div class="week-day-col">
+        <div class="week-day-heading">${day}</div>
+        <div class="week-day-meals"><div style="font-size:11px;color:var(--text-muted);padding:8px 0;">—</div></div>
+      </div>`;
+    }
+    const total = getDayMacros(di);
+    return `<div class="week-day-col">
+      <div class="week-day-heading">${day}</div>
+      <div class="week-day-meals">${meals}</div>
+      <div class="week-day-total">${total.kcal} kcal</div>
+    </div>`;
+  }).join('');
+  return `<div class="week-overview-grid">${cols}</div>`;
+}
+
+function setJidelnicekDay(di) {
+  activeDayJidelnicek = di;
+  updateJidelnicekPills();
+  updateJidelnicekContent();
+}
+
+function buildPrintDayView(di) {
+  const dayMacros = getDayMacros(di);
+  const seenRecipes = {};
+  const blocksHtml = MEALS.map(m => {
+    const rid = selection[di]?.[m.key];
+    if (!rid) return '';
+    const r = RECIPES.find(x => x.id === rid);
+    if (!r) return '';
+    const isRepeat = seenRecipes[rid];
+    seenRecipes[rid] = (seenRecipes[rid] || 0) + 1;
+    const ingHtml = r.ing.map(i =>
+      `<div class="print-ing-row">${i.n}<span>${i.m}</span></div>`
+    ).join('');
+    let postupHtml = '';
+    if (isRepeat) {
+      const firstMeal = MEALS.find(mm => selection[di]?.[mm.key] === rid && mm.key !== m.key);
+      postupHtml = `<div class="print-repeat-note">Stejný postup jako ${firstMeal ? firstMeal.label : 'výše'} — připrav najednou a rozděl na porce.</div>`;
+    } else {
+      postupHtml = (r.postup || []).map((krok, idx) =>
+        `<div class="print-step-row"><div class="print-step-num">${idx+1}</div><div>${krok}</div></div>`
+      ).join('');
+    }
+    return `<div class="print-meal-block">
+      <div class="print-meal-header">
+        <div>
+          <div class="print-meal-type">${m.label}</div>
+          <div class="print-meal-name">${r.nazev}</div>
+        </div>
+        <div class="print-meal-kcal">${r.kcal} kcal · B ${r.b}g · S ${r.s}g · T ${r.t}g</div>
+      </div>
+      <div class="print-meal-body">
+        <div><div class="print-col-title">Ingredience</div>${ingHtml}</div>
+        <div><div class="print-col-title">Postup přípravy</div>${postupHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const hasRepeats = Object.values(seenRecipes).some(v => v > 1);
+  const noteHtml = hasRepeats
+    ? `<div class="print-day-note">Tip: Jídla, která se v tento den opakují, si připrav najednou a rozděl do krabiček.</div>`
+    : '';
+  return `
+    <div class="print-day-header">
+      <div>
+        <div class="print-day-title">${DAYS[di]}</div>
+        <div class="print-day-sub">Krabičkujeme — Týdenní jídelníček</div>
+      </div>
+      <div class="print-day-summary">
+        <div class="print-day-kcal">${dayMacros.kcal} kcal / den</div>
+        <div class="print-day-macros">Bílkoviny ${dayMacros.b}g · Sacharidy ${dayMacros.s}g · Tuky ${dayMacros.t}g</div>
+      </div>
+    </div>
+    ${blocksHtml}${noteHtml}`;
+}
+
+function printCurrentDay() {
+  setPrintPage('@page { size: A4 portrait; margin: 8mm; }');
+  const di = activeDayJidelnicek === -1 ? 0 : activeDayJidelnicek;
+  const pv = document.getElementById('print-day-view');
+  if (pv) pv.innerHTML = buildPrintDayView(di);
+  setTimeout(() => window.print(), 150);
+}
+
+function openRecipeModal(rid) {
+  const r = RECIPES.find(x => x.id === rid);
+  if (!r) return;
+  const ingHtml = r.ing.map(i =>
+    `<div class="modal-ing-item">${i.n}<span class="ia">${i.m}</span></div>`
+  ).join('');
+  const postupHtml = (r.postup || []).map((krok, idx) =>
+    `<div class="modal-step"><div class="modal-step-num">${idx+1}</div><div>${krok}</div></div>`
+  ).join('');
+  document.getElementById('modal-box-content').innerHTML = `
+    <img class="modal-photo" src="${r.photoUrl}" alt="${r.nazev}"
+         onerror="this.style.display='none'">
+    <div class="modal-content">
+      <div class="modal-type">${r.kat}</div>
+      <div class="modal-name">${r.nazev}</div>
+      <div class="modal-macros">
+        <div class="modal-macro"><div class="mv">${r.kcal}</div><div class="ml">kcal</div></div>
+        <div class="modal-macro"><div class="mv">${r.b}g</div><div class="ml">Bílk.</div></div>
+        <div class="modal-macro"><div class="mv">${r.s}g</div><div class="ml">Sach.</div></div>
+        <div class="modal-macro"><div class="mv">${r.t}g</div><div class="ml">Tuky</div></div>
+      </div>
+      <div class="modal-body-cols">
+        <div><div class="modal-section-title">🛒 Ingredience</div>${ingHtml}</div>
+        <div><div class="modal-section-title">👩‍🍳 Postup přípravy</div>${postupHtml}</div>
+      </div>
+    </div>`;
+  document.getElementById('recipe-modal').classList.add('open');
+}
+
+function closeModalOverlay(e) {
+  if (e.target === document.getElementById('recipe-modal'))
+    document.getElementById('recipe-modal').classList.remove('open');
+}
+
+// ─── TDEE KALKULAČKA ─────────────────────────────────────────────────────────
+function calcTDEE() {
+  const w = parseFloat(document.getElementById('tdee-weight').value);
+  const h = parseFloat(document.getElementById('tdee-height').value);
+  const a = parseFloat(document.getElementById('tdee-age').value);
+  const gender = document.querySelector('input[name="tdee-gender"]:checked').value;
+  const activity = parseFloat(document.querySelector('input[name="tdee-activity"]:checked').value);
+
+  if (!w || !h || !a || w < 30 || h < 100 || a < 10) {
+    alert('Vyplň prosím váhu, výšku a věk správně.');
+    return;
+  }
+
+  let bmr;
+  if (gender === 'f') {
+    bmr = 10 * w + 6.25 * h - 5 * a - 161;
+  } else {
+    bmr = 10 * w + 6.25 * h - 5 * a + 5;
+  }
+  const tdee = Math.round(bmr * activity);
+  const bmrR = Math.round(bmr);
+
+  document.getElementById('res-bmr').textContent = bmrR;
+  document.getElementById('res-tdee').textContent = tdee;
+  document.getElementById('res-tdee-kj').textContent = Math.round(tdee * 4.184);
+  document.getElementById('res-hubnout').textContent = tdee - 400;
+  document.getElementById('res-udrzovat').textContent = tdee;
+  document.getElementById('res-nabirat').textContent = tdee + 250;
+
+  const res = document.getElementById('tdee-result');
+  res.classList.add('visible');
+  res.scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
