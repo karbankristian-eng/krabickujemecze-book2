@@ -276,6 +276,34 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 }
 @media (max-width: 600px) {
   #days-grid { grid-template-columns: 1fr 1fr; }
+  .input-row { grid-template-columns: 1fr !important; }
+  .tdee-numbers { grid-template-columns: 1fr !important; }
+  .goal-boxes { grid-template-columns: 1fr !important; }
+  .activity-group { grid-template-columns: 1fr !important; }
+  .modal-body-cols { grid-template-columns: 1fr !important; }
+  .modal-macros { grid-template-columns: repeat(2,1fr) !important; }
+  .tdee-card { padding: 16px !important; }
+  .tab-nav { overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .tab-btn { padding: 12px 16px; font-size: 11px; flex-shrink: 0; }
+  main { padding: 10px 12px; }
+}
+@media (max-width: 480px) {
+  header { padding: 8px 14px; }
+  header h1 { font-size: 22px; }
+  header p { font-size: 11px; }
+  #days-grid { grid-template-columns: 1fr; }
+  #macro-summary { grid-template-columns: repeat(2, 1fr); }
+  .actions-bar .btn { width: 100%; justify-content: center; }
+  .week-overview-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px 24px; padding: 0 12px; }
+  .week-overview-wrap .week-overview-grid { min-width: 700px; }
+  .day-pills { gap: 6px; }
+  .day-pill { padding: 6px 12px; font-size: 11px; }
+  .jidelnicek-actions .btn { width: 100%; justify-content: center; }
+  .meal-cards-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .modal-name { font-size: 18px; }
+  .bmi-result-value { font-size: 42px; }
+  .tdee-number .n { font-size: 24px; }
+  .goal-box .goal-val { font-size: 18px; }
 }
 
 @media print {
@@ -551,9 +579,121 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 .goal-box { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; text-align: center; }
 .goal-box .goal-val { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 4px; }
 .goal-box .goal-lbl { font-size: 11px; opacity: 0.85; }
+
+/* ─── SAVED TOAST ─── */
+#saved-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--green-600); color: white;
+  padding: 10px 20px; border-radius: 24px;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 1000;
+}
+#saved-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── GOAL PANEL ─── */
+#goal-panel {
+  background: white; border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  border-left: 4px solid var(--green-600);
+}
+#goal-panel .goal-title {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary);
+  margin-right: 4px;
+}
+#goal-panel input[type="number"] {
+  width: 110px; padding: 8px 12px;
+  font-size: 14px; font-family: 'Lato', sans-serif;
+  border: 1.5px solid var(--green-300); border-radius: 8px;
+  background: var(--off-white); color: var(--text-body);
+}
+#goal-panel input:focus { outline: none; border-color: var(--green-600); }
+#goal-panel .goal-unit { font-size: 13px; color: var(--text-muted); margin-right: 6px; }
+#goal-panel .btn { padding: 8px 16px; font-size: 12px; }
+#goal-panel .goal-current {
+  margin-left: auto; font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 13px; color: var(--green-600);
+}
+.goal-indicator {
+  display: inline-block; margin-top: 6px; padding: 3px 10px;
+  border-radius: 12px; font-family: 'Montserrat', sans-serif; font-weight: 700;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.goal-indicator.ok { background: #d6edbc; color: #3b6d11; }
+.goal-indicator.warn { background: #ffe6cc; color: #b35e1a; }
+.goal-indicator.bad { background: #fad6cf; color: #a02a14; }
+
+/* ─── TUNE PANEL ─── */
+#tune-panel {
+  background: white; border-radius: 14px;
+  padding: 18px; margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  display: none;
+}
+#tune-panel.visible { display: block; }
+.tune-banner {
+  background: var(--green-100); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 14px;
+  font-size: 13.5px; line-height: 1.55; color: var(--text-primary);
+}
+.tune-banner.warn { background: #ffe6cc; }
+.tune-banner.bad { background: #fad6cf; }
+.tune-banner strong { font-family: 'Montserrat', sans-serif; font-weight: 800; }
+.tune-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 700px) { .tune-grid { grid-template-columns: 1fr; } }
+.tune-card {
+  background: var(--off-white); border-radius: 10px;
+  padding: 14px; border: 1px solid var(--green-100);
+}
+.tune-card h4 {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--green-600); margin-bottom: 10px;
+}
+.tune-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 8px; }
+.tune-row select, .tune-row input {
+  width: 100%; padding: 7px 10px; font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  border: 1px solid var(--green-300); border-radius: 6px;
+  background: white; color: var(--text-body);
+}
+.tune-row label {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
+}
+.tune-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.tune-actions .btn { padding: 8px 14px; font-size: 11px; }
+.tune-preview {
+  margin-top: 10px; padding: 8px 12px;
+  background: var(--green-100); border-radius: 6px;
+  font-size: 12px; color: var(--text-body);
+}
+.tune-preview strong { color: var(--green-600); font-family: 'Montserrat', sans-serif; font-weight: 800; }
+.tune-slider-row { display: flex; align-items: center; gap: 10px; }
+.tune-slider-row input[type="range"] { flex: 1; accent-color: var(--green-600); }
+.tune-slider-row .tune-pct {
+  min-width: 56px; text-align: right;
+  font-family: 'Montserrat', sans-serif; font-weight: 800;
+  font-size: 14px; color: var(--green-600);
+}
+.override-badge {
+  display: inline-block; margin-left: 6px;
+  padding: 1px 6px; border-radius: 8px;
+  background: var(--green-300); color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif; font-weight: 800;
+  font-size: 9px; vertical-align: middle;
+}
 </style>
 </head>
 <body>
+
+<div id="saved-toast">✓ Data uložena</div>
 
 <header>
   <div>
@@ -573,6 +713,16 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 
   <div id="tab-planovac" class="tab-panel active">
 
+  <!-- Cílový příjem panel -->
+  <div id="goal-panel">
+    <div class="goal-title">🎯 Můj cílový příjem</div>
+    <input type="number" id="goal-kcal" placeholder="např. 1800" min="500" max="5000">
+    <span class="goal-unit">kcal / den</span>
+    <button class="btn btn-primary" onclick="setGoal()">Nastavit cíl</button>
+    <button class="btn btn-secondary" onclick="clearGoal()" title="Zrušit cíl">✕</button>
+    <div class="goal-current" id="goal-current"></div>
+  </div>
+
   <!-- Makro summary -->
   <div id="macro-summary">
     <div class="macro-card">
@@ -580,6 +730,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
       <div class="value" id="sum-kcal">0</div>
       <div class="label">kcal</div>
       <div class="week-val" id="sum-kcal-week">0 kcal celkem / týden</div>
+      <div id="goal-indicator-wrap"></div>
     </div>
     <div class="macro-card">
       <div class="macro-card-avg-label">Ø průměr / den</div>
@@ -598,6 +749,51 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
       <div class="value" id="sum-t">0g</div>
       <div class="label">Tuky</div>
       <div class="week-val" id="sum-t-week">0g celkem / týden</div>
+    </div>
+  </div>
+
+  <!-- Doladit příjem -->
+  <div id="tune-panel">
+    <div class="tune-banner" id="tune-banner"></div>
+    <div class="tune-grid">
+      <div class="tune-card">
+        <h4>➕ Přidat / odebrat jídlo</h4>
+        <div class="tune-row">
+          <label>Den</label>
+          <select id="tune-add-day"></select>
+        </div>
+        <div class="tune-row">
+          <label>Chod</label>
+          <select id="tune-add-meal" onchange="tuneRefreshMealOptions()"></select>
+        </div>
+        <div class="tune-row">
+          <label>Jídlo</label>
+          <select id="tune-add-recipe"></select>
+        </div>
+        <div class="tune-actions">
+          <button class="btn btn-primary" onclick="tuneAddMeal()">Přidat do plánovače</button>
+          <button class="btn btn-secondary" onclick="tuneRemoveMeal()">Odebrat jídlo z chodu</button>
+        </div>
+      </div>
+      <div class="tune-card">
+        <h4>⚖️ Upravit gramáže</h4>
+        <div class="tune-row">
+          <label>Vyber jídlo k úpravě</label>
+          <select id="tune-portion-meal" onchange="tunePortionUpdatePreview()"></select>
+        </div>
+        <div class="tune-row">
+          <label>Gramáž</label>
+          <div class="tune-slider-row">
+            <input type="range" id="tune-portion-slider" min="50" max="200" step="5" value="100" oninput="tunePortionUpdatePreview()">
+            <div class="tune-pct" id="tune-portion-pct">100 %</div>
+          </div>
+        </div>
+        <div class="tune-preview" id="tune-portion-preview">— vyber jídlo —</div>
+        <div class="tune-actions">
+          <button class="btn btn-primary" onclick="tunePortionApply()">Použít</button>
+          <button class="btn btn-secondary" onclick="tunePortionReset()">Reset na 100 %</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -874,6 +1070,37 @@ const CATS_ORDER = ["Zelenina & ovoce","Maso & ryby","Mléčné výrobky","Such�
 
 // Stav
 const selection = {}; // dayIndex -> {mealKey -> recipeId}
+const mealOverrides = {}; // 'di_mealKey' -> coefficient (1.0 = 100%)
+let goalKcal = null;     // cílový denní příjem v kcal
+
+// ─── localStorage helpers (s try/catch pro privátní záložky) ─────────────────
+const LS_PREFIX = 'krabickujeme_';
+function lsSet(key, val) {
+  try { localStorage.setItem(LS_PREFIX + key, typeof val === 'string' ? val : JSON.stringify(val)); }
+  catch(e) { /* private mode / quota */ }
+}
+function lsGet(key) {
+  try { return localStorage.getItem(LS_PREFIX + key); }
+  catch(e) { return null; }
+}
+function lsGetJSON(key) {
+  const v = lsGet(key);
+  if (!v) return null;
+  try { return JSON.parse(v); } catch(e) { return null; }
+}
+function lsClearAll() {
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith(LS_PREFIX)).forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+}
+let _toastTimer = null;
+function showSavedToast() {
+  const t = document.getElementById('saved-toast');
+  if (!t) return;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
 
 function buildOptions(categories) {
   let html = '<option value="">— nevybráno —</option>';
@@ -949,16 +1176,37 @@ function initDays() {
 
 function onSelect(dayIdx, mealKey, val) {
   selection[dayIdx][mealKey] = val ? parseInt(val) : null;
+  // Vyprázdnění slotu zruší případný override
+  if (!val) {
+    const k = dayIdx + '_' + mealKey;
+    if (mealOverrides[k]) { delete mealOverrides[k]; lsSet('overrides', mealOverrides); }
+  }
+  saveSelectionToLS();
   updateSummary();
+  showSavedToast();
+}
+
+function saveSelectionToLS() {
+  const flat = {};
+  DAYS.forEach((_, di) => {
+    Object.entries(selection[di] || {}).forEach(([mk, rid]) => {
+      if (rid) flat[di + '_' + mk] = rid;
+    });
+  });
+  lsSet('selection', flat);
 }
 
 function getDayMacros(dayIdx) {
   const m = {kcal:0, b:0, s:0, t:0};
-  Object.values(selection[dayIdx] || {}).forEach(rid => {
+  Object.entries(selection[dayIdx] || {}).forEach(([mealKey, rid]) => {
     if (!rid) return;
     const r = RECIPES.find(x => x.id === rid);
-    if (r) { m.kcal += r.kcal; m.b += r.b; m.s += r.s; m.t += r.t; }
+    if (!r) return;
+    const k = dayIdx + '_' + mealKey;
+    const c = mealOverrides[k] || 1;
+    m.kcal += r.kcal * c; m.b += r.b * c; m.s += r.s * c; m.t += r.t * c;
   });
+  m.kcal = Math.round(m.kcal); m.b = Math.round(m.b); m.s = Math.round(m.s); m.t = Math.round(m.t);
   return m;
 }
 
@@ -1002,6 +1250,63 @@ function updateSummary() {
   document.getElementById('sum-b-week').textContent = total.b + 'g celkem / týden';
   document.getElementById('sum-s-week').textContent = total.s + 'g celkem / týden';
   document.getElementById('sum-t-week').textContent = total.t + 'g celkem / týden';
+  updateGoalIndicator(avgKcal);
+  updateTunePanel(avgKcal);
+  refreshTuneSelectors();
+  updateOverrideBadges();
+}
+
+function updateOverrideBadges() {
+  document.querySelectorAll('.day-col').forEach((col, di) => {
+    col.querySelectorAll('.meal-select').forEach((ms, mi) => {
+      const mk = MEALS[mi]?.key;
+      if (!mk) return;
+      const k = di + '_' + mk;
+      const c = mealOverrides[k];
+      const lbl = ms.querySelector('label');
+      if (!lbl) return;
+      const old = lbl.querySelector('.override-badge');
+      if (old) old.remove();
+      if (c && selection[di] && selection[di][mk]) {
+        const b = document.createElement('span');
+        b.className = 'override-badge';
+        b.textContent = Math.round(c * 100) + '%';
+        lbl.appendChild(b);
+      }
+    });
+  });
+}
+
+function updateGoalIndicator(avgKcal) {
+  const wrap = document.getElementById('goal-indicator-wrap');
+  if (!wrap) return;
+  if (!goalKcal || avgKcal === 0) { wrap.innerHTML = ''; return; }
+  const diff = avgKcal - goalKcal;
+  const abs = Math.abs(diff);
+  let cls, txt;
+  if (abs <= 100) { cls = 'ok'; txt = '✓ Na cíli'; }
+  else if (abs <= 300) { cls = 'warn'; txt = (diff > 0 ? '+' : '−') + abs + ' kcal od cíle'; }
+  else { cls = 'bad'; txt = (diff > 0 ? '↑ +' : '↓ −') + abs + ' kcal od cíle'; }
+  wrap.innerHTML = `<span class="goal-indicator ${cls}">${txt}</span>`;
+}
+
+function updateTunePanel(avgKcal) {
+  const panel = document.getElementById('tune-panel');
+  const banner = document.getElementById('tune-banner');
+  if (!panel || !banner) return;
+  if (!goalKcal || avgKcal === 0) { panel.classList.remove('visible'); return; }
+  const diff = avgKcal - goalKcal;
+  if (Math.abs(diff) < 50) { panel.classList.remove('visible'); return; }
+  let cls = 'tune-banner';
+  if (Math.abs(diff) > 300) cls += ' bad';
+  else if (Math.abs(diff) > 100) cls += ' warn';
+  banner.className = cls;
+  if (diff < 0) {
+    banner.innerHTML = `Tvůj průměr je <strong>${avgKcal} kcal</strong>, cíl je <strong>${goalKcal} kcal</strong>. Chybí ti <strong>~${Math.abs(diff)} kcal / den</strong>. Jak to doladit?`;
+  } else {
+    banner.innerHTML = `Tvůj průměr je <strong>${avgKcal} kcal</strong>, cíl je <strong>${goalKcal} kcal</strong>. Překračuješ cíl o <strong>~${diff} kcal / den</strong>. Jak to doladit?`;
+  }
+  panel.classList.add('visible');
 }
 
 function generateShoppingList() {
@@ -1054,8 +1359,23 @@ function toggleItem(cb) {
 }
 
 function resetAll() {
+  if (!confirm('Opravdu vymazat plánovač, kalkulačky, cíl i uložená data?')) return;
   DAYS.forEach((_, di) => { selection[di] = {}; });
+  Object.keys(mealOverrides).forEach(k => delete mealOverrides[k]);
+  goalKcal = null;
   document.querySelectorAll('.day-card select').forEach(s => s.value = '');
+  document.getElementById('goal-kcal').value = '';
+  document.getElementById('goal-current').textContent = '';
+  // Vyčisti TDEE/BMI vstupy
+  ['tdee-weight','tdee-height','tdee-age','bmi-weight','bmi-height'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const fG = document.querySelector('input[name="tdee-gender"][value="f"]'); if (fG) fG.checked = true;
+  const sedavy = document.querySelector('input[name="tdee-activity"][value="1.2"]'); if (sedavy) sedavy.checked = true;
+  document.getElementById('tdee-result')?.classList.remove('visible');
+  document.getElementById('bmi-result')?.classList.remove('visible');
+  document.getElementById('bmi-ideal-card') && (document.getElementById('bmi-ideal-card').style.display = 'none');
+  lsClearAll();
   updateSummary();
   document.getElementById('shopping-section').classList.remove('visible');
 }
@@ -1211,7 +1531,7 @@ function buildWeekOverview() {
       <div class="week-day-total">${total.kcal} kcal</div>
     </div>`;
   }).join('');
-  return `<div class="week-overview-grid">${cols}</div>`;
+  return `<div class="week-overview-wrap"><div class="week-overview-grid">${cols}</div></div>`;
 }
 
 function setJidelnicekDay(di) {
@@ -1409,6 +1729,228 @@ function calcBMI() {
   result.classList.add('visible');
   result.scrollIntoView({ behavior: 'smooth' });
 }
+
+// ─── CÍLOVÝ PŘÍJEM ───────────────────────────────────────────────────────────
+function setGoal() {
+  const v = parseInt(document.getElementById('goal-kcal').value);
+  if (!v || v < 500 || v > 5000) { alert('Zadej cíl mezi 500 a 5000 kcal.'); return; }
+  goalKcal = v;
+  lsSet('goal_kcal', v);
+  document.getElementById('goal-current').textContent = `Cíl: ${v} kcal/den`;
+  updateSummary();
+  showSavedToast();
+}
+function clearGoal() {
+  goalKcal = null;
+  document.getElementById('goal-kcal').value = '';
+  document.getElementById('goal-current').textContent = '';
+  try { localStorage.removeItem(LS_PREFIX + 'goal_kcal'); } catch(e) {}
+  updateSummary();
+}
+
+// ─── TUNE PANEL — naplnění selectů a akce ───────────────────────────────────
+function refreshTuneSelectors() {
+  const dayS = document.getElementById('tune-add-day');
+  const mealS = document.getElementById('tune-add-meal');
+  const portionS = document.getElementById('tune-portion-meal');
+  if (!dayS || !mealS || !portionS) return;
+
+  // Day select (jen jednou)
+  if (!dayS.options.length) {
+    dayS.innerHTML = DAYS.map((d, i) => `<option value="${i}">${d}</option>`).join('');
+  }
+  // Meal select (jen jednou)
+  if (!mealS.options.length) {
+    mealS.innerHTML = MEALS.map(m => `<option value="${m.key}">${m.label}</option>`).join('');
+    tuneRefreshMealOptions();
+  }
+
+  // Portion select — dynamicky aktuální výběry
+  const prev = portionS.value;
+  let opts = '<option value="">— vyber jídlo —</option>';
+  DAYS.forEach((d, di) => {
+    MEALS.forEach(m => {
+      const rid = selection[di] && selection[di][m.key];
+      if (!rid) return;
+      const r = RECIPES.find(x => x.id === rid);
+      if (!r) return;
+      const k = di + '_' + m.key;
+      const c = mealOverrides[k];
+      const badge = c ? ` (${Math.round(c*100)} %)` : '';
+      opts += `<option value="${k}">${d} — ${m.label}: ${r.nazev}${badge}</option>`;
+    });
+  });
+  portionS.innerHTML = opts;
+  if (prev && portionS.querySelector(`option[value="${prev}"]`)) portionS.value = prev;
+  tunePortionUpdatePreview();
+}
+
+function tuneRefreshMealOptions() {
+  const mealKey = document.getElementById('tune-add-meal').value;
+  const meal = MEALS.find(m => m.key === mealKey);
+  const recipeS = document.getElementById('tune-add-recipe');
+  if (!meal || !recipeS) return;
+  recipeS.innerHTML = buildOptions(meal.cats);
+}
+
+function tuneAddMeal() {
+  const di = parseInt(document.getElementById('tune-add-day').value);
+  const mealKey = document.getElementById('tune-add-meal').value;
+  const rid = parseInt(document.getElementById('tune-add-recipe').value);
+  if (!rid) { alert('Vyber konkrétní jídlo.'); return; }
+  selection[di][mealKey] = rid;
+  // Synchronizuj příslušný select v days-grid
+  const sel = document.querySelector(`.day-col:nth-child(${di+1}) .meal-select:nth-child(${MEALS.findIndex(m=>m.key===mealKey)+1}) select`);
+  if (sel) sel.value = rid;
+  saveSelectionToLS();
+  updateSummary();
+  showSavedToast();
+}
+
+function tuneRemoveMeal() {
+  const di = parseInt(document.getElementById('tune-add-day').value);
+  const mealKey = document.getElementById('tune-add-meal').value;
+  selection[di][mealKey] = null;
+  const k = di + '_' + mealKey;
+  if (mealOverrides[k]) { delete mealOverrides[k]; lsSet('overrides', mealOverrides); }
+  const sel = document.querySelector(`.day-col:nth-child(${di+1}) .meal-select:nth-child(${MEALS.findIndex(m=>m.key===mealKey)+1}) select`);
+  if (sel) sel.value = '';
+  saveSelectionToLS();
+  updateSummary();
+}
+
+function tunePortionUpdatePreview() {
+  const k = document.getElementById('tune-portion-meal').value;
+  const slider = document.getElementById('tune-portion-slider');
+  const pct = parseInt(slider.value);
+  document.getElementById('tune-portion-pct').textContent = pct + ' %';
+  const preview = document.getElementById('tune-portion-preview');
+  if (!k) { preview.textContent = '— vyber jídlo —'; return; }
+  const [diStr, mealKey] = k.split('_');
+  const di = parseInt(diStr);
+  const rid = selection[di] && selection[di][mealKey];
+  const r = rid && RECIPES.find(x => x.id === rid);
+  if (!r) { preview.textContent = '— jídlo nenalezeno —'; return; }
+  // Při změně vybraného slotu nastav slider na aktuální override (nebo 100)
+  if (slider.dataset.k !== k) {
+    const cur = mealOverrides[k];
+    slider.value = cur ? Math.round(cur * 100) : 100;
+    document.getElementById('tune-portion-pct').textContent = slider.value + ' %';
+    slider.dataset.k = k;
+  }
+  const p = parseInt(slider.value) / 100;
+  preview.innerHTML = `→ <strong>${Math.round(r.kcal*p)} kcal</strong> · Bílk. <strong>${Math.round(r.b*p)}g</strong> · Sach. <strong>${Math.round(r.s*p)}g</strong> · Tuky <strong>${Math.round(r.t*p)}g</strong>`;
+}
+
+function tunePortionApply() {
+  const k = document.getElementById('tune-portion-meal').value;
+  if (!k) { alert('Vyber nejprve jídlo.'); return; }
+  const pct = parseInt(document.getElementById('tune-portion-slider').value);
+  const c = pct / 100;
+  if (Math.abs(c - 1) < 0.001) {
+    delete mealOverrides[k];
+  } else {
+    mealOverrides[k] = c;
+  }
+  lsSet('overrides', mealOverrides);
+  updateSummary();
+  showSavedToast();
+}
+
+function tunePortionReset() {
+  const k = document.getElementById('tune-portion-meal').value;
+  if (!k) return;
+  delete mealOverrides[k];
+  lsSet('overrides', mealOverrides);
+  document.getElementById('tune-portion-slider').value = 100;
+  tunePortionUpdatePreview();
+  updateSummary();
+}
+
+// ─── INIT — Načtení uložených dat z localStorage ────────────────────────────
+function restoreFromLS() {
+  // TDEE
+  ['tdee-weight','tdee-height','tdee-age'].forEach(id => {
+    const v = lsGet(id); if (v) { const el = document.getElementById(id); if (el) el.value = v; }
+  });
+  const tg = lsGet('tdee-gender');
+  if (tg) { const el = document.querySelector(`input[name="tdee-gender"][value="${tg}"]`); if (el) el.checked = true; }
+  const ta = lsGet('tdee-activity');
+  if (ta) { const el = document.querySelector(`input[name="tdee-activity"][value="${ta}"]`); if (el) el.checked = true; }
+
+  // BMI
+  ['bmi-weight','bmi-height'].forEach(id => {
+    const v = lsGet(id); if (v) { const el = document.getElementById(id); if (el) el.value = v; }
+  });
+
+  // Selection
+  const sel = lsGetJSON('selection');
+  if (sel) {
+    Object.entries(sel).forEach(([k, rid]) => {
+      const idx = k.indexOf('_');
+      const di = parseInt(k.substring(0, idx));
+      const mk = k.substring(idx + 1);
+      if (!selection[di]) selection[di] = {};
+      selection[di][mk] = parseInt(rid);
+    });
+    // Synchronizuj day-grid selecty
+    DAYS.forEach((_, di) => {
+      MEALS.forEach((m, mi) => {
+        const rid = selection[di][m.key];
+        if (rid) {
+          const s = document.querySelector(`.day-col:nth-child(${di+1}) .meal-select:nth-child(${mi+1}) select`);
+          if (s) s.value = rid;
+        }
+      });
+    });
+  }
+
+  // Overrides
+  const ov = lsGetJSON('overrides');
+  if (ov) Object.assign(mealOverrides, ov);
+
+  // Goal
+  const g = lsGet('goal_kcal');
+  if (g) {
+    goalKcal = parseInt(g);
+    document.getElementById('goal-kcal').value = g;
+    document.getElementById('goal-current').textContent = `Cíl: ${g} kcal/den`;
+  }
+
+  // Auto-calc TDEE pokud máme všechna data
+  if (lsGet('tdee-weight') && lsGet('tdee-height') && lsGet('tdee-age')) {
+    try { calcTDEE(); document.getElementById('tdee-result')?.scrollTo?.({top:0}); } catch(e) {}
+  }
+  if (lsGet('bmi-weight') && lsGet('bmi-height')) {
+    try { calcBMI(); } catch(e) {}
+  }
+}
+
+function attachLSListeners() {
+  // TDEE inputy
+  ['tdee-weight','tdee-height','tdee-age'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { lsSet(id, el.value); showSavedToast(); });
+  });
+  document.querySelectorAll('input[name="tdee-gender"]').forEach(el => {
+    el.addEventListener('change', () => { lsSet('tdee-gender', el.value); showSavedToast(); });
+  });
+  document.querySelectorAll('input[name="tdee-activity"]').forEach(el => {
+    el.addEventListener('change', () => { lsSet('tdee-activity', el.value); showSavedToast(); });
+  });
+  // BMI inputy
+  ['bmi-weight','bmi-height'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { lsSet(id, el.value); showSavedToast(); });
+  });
+}
+
+// Spusť po naplnění days-grid
+document.addEventListener('DOMContentLoaded', () => {
+  restoreFromLS();
+  attachLSListeners();
+  updateSummary();
+});
 </script>
 </body>
 </html>
