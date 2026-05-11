@@ -370,6 +370,13 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 .modal-ing-item .ia { color: var(--text-muted); font-size: 12px; white-space: nowrap; margin-left: 6px; }
 .modal-step { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--green-100); font-size: 13px; line-height: 1.5; align-items: flex-start; }
 .modal-step-num { min-width: 22px; height: 22px; background: var(--green-600); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; margin-top: 1px; }
+.modal-portion-note {
+  background: var(--green-100); border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 14px;
+  font-size: 12px; color: var(--text-body);
+  font-family: 'Lato', sans-serif;
+}
+.modal-portion-note strong { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--green-600); }
 .modal-close-btn { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: rgba(255,255,255,0.92); border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; }
 
 /* ─── BMI KALKULAČKA ─── */
@@ -718,6 +725,15 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
   color: var(--text-primary);
 }
 .tip-btn:hover { background: var(--green-100); }
+.tip-swap-row { margin: 8px 0; }
+.tip-swap-row label { display: block; font-family: 'Lato', sans-serif; font-weight: 400; font-size: 12px; color: var(--text-body); margin-bottom: 5px; }
+.tip-swap-row select {
+  width: 100%; padding: 7px 10px; font-size: 12px;
+  font-family: 'Lato', sans-serif;
+  border: 1.5px solid var(--green-300); border-radius: 6px;
+  background: var(--off-white); color: var(--text-body); cursor: pointer;
+}
+.tip-swap-row select:focus { outline: none; border-color: var(--green-600); }
 
 .extras-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
 .extra-pill {
@@ -1580,17 +1596,23 @@ function buildDayCards(di) {
     if (!rid) return '';
     const r = RECIPES.find(x => x.id === rid);
     if (!r) return '';
-    return `<div class="meal-card" onclick="openRecipeModal(${r.id})">
+    const c = mealOverrides[di + '_' + m.key] || 1;
+    const kcal = Math.round(r.kcal * c);
+    const b = Math.round(r.b * c);
+    const s = Math.round(r.s * c);
+    const t = Math.round(r.t * c);
+    const badge = Math.abs(c - 1) > 0.001 ? ` <span class="override-badge">${Math.round(c*100)}%</span>` : '';
+    return `<div class="meal-card" onclick="openRecipeModal(${r.id}, ${di}, '${m.key}')">
       <img class="meal-card-photo" src="${r.photoUrl}" alt="${r.nazev}"
            onerror="this.style.background='var(--green-100)'">
       <div class="meal-card-body">
-        <div class="meal-card-type">${m.label}</div>
+        <div class="meal-card-type">${m.label}${badge}</div>
         <div class="meal-card-name">${r.nazev}</div>
-        <div class="meal-card-kcal">${r.kcal} <span>kcal</span></div>
+        <div class="meal-card-kcal">${kcal} <span>kcal</span></div>
         <div class="meal-card-macros">
-          <span>B: <b>${r.b}g</b></span>
-          <span>S: <b>${r.s}g</b></span>
-          <span>T: <b>${r.t}g</b></span>
+          <span>B: <b>${b}g</b></span>
+          <span>S: <b>${s}g</b></span>
+          <span>T: <b>${t}g</b></span>
         </div>
       </div>
     </div>`;
@@ -1604,10 +1626,13 @@ function buildWeekOverview() {
       if (!rid) return '';
       const r = RECIPES.find(x => x.id === rid);
       if (!r) return '';
-      return `<div class="week-meal-item" onclick="openRecipeModal(${r.id})">
-        <div class="week-meal-type">${m.label}</div>
+      const c = mealOverrides[di + '_' + m.key] || 1;
+      const kcal = Math.round(r.kcal * c);
+      const badge = Math.abs(c - 1) > 0.001 ? ` <span class="override-badge">${Math.round(c*100)}%</span>` : '';
+      return `<div class="week-meal-item" onclick="openRecipeModal(${r.id}, ${di}, '${m.key}')">
+        <div class="week-meal-type">${m.label}${badge}</div>
         <div class="week-meal-name">${r.nazev}</div>
-        <div class="week-meal-kcal">${r.kcal} kcal</div>
+        <div class="week-meal-kcal">${kcal} kcal</div>
       </div>`;
     }).join('');
     if (!meals) {
@@ -1694,26 +1719,37 @@ function printCurrentDay() {
   setTimeout(() => window.print(), 150);
 }
 
-function openRecipeModal(rid) {
+function openRecipeModal(rid, di, mealKey) {
   const r = RECIPES.find(x => x.id === rid);
   if (!r) return;
+  // Pokud je modal otevřen z konkrétního slotu plánovače, aplikuj override
+  let c = 1;
+  if (typeof di === 'number' && mealKey) c = mealOverrides[di + '_' + mealKey] || 1;
+  const kcal = Math.round(r.kcal * c);
+  const b = Math.round(r.b * c);
+  const s = Math.round(r.s * c);
+  const t = Math.round(r.t * c);
   const ingHtml = r.ing.map(i =>
-    `<div class="modal-ing-item">${i.n}<span class="ia">${i.m}</span></div>`
+    `<div class="modal-ing-item">${i.n}<span class="ia">${scaleIngQty(i.m, c)}</span></div>`
   ).join('');
   const postupHtml = (r.postup || []).map((krok, idx) =>
     `<div class="modal-step"><div class="modal-step-num">${idx+1}</div><div>${krok}</div></div>`
   ).join('');
+  const portionNote = Math.abs(c - 1) > 0.001
+    ? `<div class="modal-portion-note">⚖️ Porce upravena na <strong>${Math.round(c*100)} %</strong> původní velikosti</div>`
+    : '';
   document.getElementById('modal-box-content').innerHTML = `
     <img class="modal-photo" src="${r.photoUrl}" alt="${r.nazev}"
          onerror="this.style.display='none'">
     <div class="modal-content">
       <div class="modal-type">${r.kat}</div>
       <div class="modal-name">${r.nazev}</div>
+      ${portionNote}
       <div class="modal-macros">
-        <div class="modal-macro"><div class="mv">${r.kcal}</div><div class="ml">kcal</div></div>
-        <div class="modal-macro"><div class="mv">${r.b}g</div><div class="ml">Bílk.</div></div>
-        <div class="modal-macro"><div class="mv">${r.s}g</div><div class="ml">Sach.</div></div>
-        <div class="modal-macro"><div class="mv">${r.t}g</div><div class="ml">Tuky</div></div>
+        <div class="modal-macro"><div class="mv">${kcal}</div><div class="ml">kcal</div></div>
+        <div class="modal-macro"><div class="mv">${b}g</div><div class="ml">Bílk.</div></div>
+        <div class="modal-macro"><div class="mv">${s}g</div><div class="ml">Sach.</div></div>
+        <div class="modal-macro"><div class="mv">${t}g</div><div class="ml">Tuky</div></div>
       </div>
       <div class="modal-body-cols">
         <div><div class="modal-section-title">🛒 Ingredience</div>${ingHtml}</div>
@@ -2062,20 +2098,45 @@ function updateDayStatus(di, dayKcal) {
     const cls = pct <= 15 ? 'warn' : 'bad';
     const icon = pct <= 15 ? '⚠️' : '🔴';
     el.className = `bubble-status ${cls}`;
-    let maxKcal = 0, maxMeal = '';
+    // Najdi nejkaloričtější jídlo (s aplikovaným override)
+    let maxKcal = 0, maxMealKey = null, maxRid = null;
     Object.entries(selection[di] || {}).forEach(([mk, rid]) => {
       if (!rid) return;
       const r = RECIPES.find(x => x.id === rid);
-      if (r && r.kcal > maxKcal) { maxKcal = r.kcal; maxMeal = r.nazev; }
+      if (!r) return;
+      const c = mealOverrides[di + '_' + mk] || 1;
+      const k = Math.round(r.kcal * c);
+      if (k > maxKcal) { maxKcal = k; maxMealKey = mk; maxRid = rid; }
     });
+
+    let swapDropdown = '';
+    if (maxMealKey && maxRid) {
+      const meal = MEALS.find(m => m.key === maxMealKey);
+      const current = RECIPES.find(x => x.id === maxRid);
+      // Nabídni recepty stejné kategorie s nižším kcal než aktuální (s override)
+      const alternatives = RECIPES
+        .filter(x => meal.cats.includes(x.kat) && x.id !== maxRid && x.kcal < maxKcal)
+        .sort((a, b) => a.kcal - b.kcal);
+      if (alternatives.length) {
+        const opts = alternatives.map(x => `<option value="${x.id}">${x.nazev} (${x.kcal} kcal)</option>`).join('');
+        swapDropdown = `
+          <div class="tip-swap-row">
+            <label>🔄 Vyměnit <strong>${current.nazev}</strong> za jiné:</label>
+            <select id="swap-sel-${di}" onchange="swapMealInSlot(${di},'${maxMealKey}',this.value)">
+              <option value="">— vyber jídlo —</option>${opts}
+            </select>
+          </div>`;
+      }
+    }
+
     tipHtml = `
       <details class="day-tip">
         <summary>${icon} +${Math.round(diff)} kcal · Co s tím?</summary>
         <div class="day-tip-body">
-          ${maxMeal ? `<p>💡 Nejkalorijnější jídlo: <strong>${maxMeal}</strong> (${maxKcal} kcal)</p>` : ''}
-          <p>Zkus jednu z možností:</p>
-          <button class="tip-btn" onclick="openTuneForDay(${di},'portions')">⚖️ Upravit gramáže</button>
-          <button class="tip-btn" onclick="openTuneForDay(${di},'swap')">🔄 Vyměnit jídlo</button>
+          ${maxMealKey ? `<p>💡 Nejkaloričtější jídlo: <strong>${RECIPES.find(x=>x.id===maxRid).nazev}</strong> (${maxKcal} kcal)</p>` : ''}
+          ${swapDropdown}
+          <p style="margin:8px 0 4px;color:var(--text-muted);font-size:11px;text-align:center;">— nebo —</p>
+          <button class="tip-btn" onclick="reduceDayToGoal(${di})">⚖️ Snížit gramáže celého dne na cíl (${goalKcal} kcal)</button>
         </div>
       </details>`;
   } else {
@@ -2126,6 +2187,66 @@ function buildExtrasRow(di) {
   }).filter(Boolean);
   if (!parts.length) return '';
   return `<div class="jidelnicek-extras-row"><strong>+ Přidané svačinky:</strong> ${parts.join(', ')}</div>`;
+}
+
+function swapMealInSlot(di, mealKey, newRidStr) {
+  const newRid = parseInt(newRidStr);
+  if (!newRid) return;
+  selection[di][mealKey] = newRid;
+  // Zruš případný override při výměně
+  const k = di + '_' + mealKey;
+  if (mealOverrides[k]) { delete mealOverrides[k]; lsSet('overrides', mealOverrides); }
+  // Synchronizuj příslušný select v days-grid
+  const mi = MEALS.findIndex(m => m.key === mealKey);
+  const sel = document.querySelectorAll('.day-col')[di]?.querySelectorAll('.meal-select select')[mi];
+  if (sel) sel.value = newRid;
+  saveSelectionToLS();
+  updateSummary();
+  showSavedToast();
+}
+
+function reduceDayToGoal(di) {
+  const m = getDayMacros(di);
+  if (!goalKcal || !m.kcal) return;
+  // Spočítej koeficient: chceme posunout den k cíli
+  // ALE: extras se nedají škálovat — odečti je nejdřív
+  const extrasKcal = (extrasSelection[di] || []).reduce((sum, eid) => {
+    const e = EXTRAS.find(x => x.id === eid); return sum + (e ? e.kcal : 0);
+  }, 0);
+  const mealsKcal = m.kcal - extrasKcal;
+  const targetMealsKcal = goalKcal - extrasKcal;
+  if (mealsKcal <= 0 || targetMealsKcal <= 0) {
+    alert('Den nemá dostatek jídel ke snížení nebo extras přesahují cíl.');
+    return;
+  }
+  const c = Math.max(0.5, Math.min(1.0, targetMealsKcal / mealsKcal));
+  // Aplikuj koeficient na všechny vybrané sloty toho dne
+  Object.entries(selection[di] || {}).forEach(([mk, rid]) => {
+    if (!rid) return;
+    const k = di + '_' + mk;
+    if (Math.abs(c - 1) < 0.001) delete mealOverrides[k];
+    else mealOverrides[k] = c;
+  });
+  lsSet('overrides', mealOverrides);
+  updateSummary();
+  showSavedToast();
+}
+
+// Škáluje numerickou gramáž ("60g", "200ml", "2 lžíce", "1 ks") koeficientem
+function scaleIngQty(m, coef) {
+  if (Math.abs(coef - 1) < 0.001) return m;
+  // Najdi vedoucí číslo (s desetinnou čárkou nebo tečkou)
+  const match = m.match(/^(\d+(?:[.,]\d+)?)(.*)$/);
+  if (!match) return m;
+  const num = parseFloat(match[1].replace(',', '.'));
+  if (!num || isNaN(num)) return m;
+  const rest = match[2];
+  const scaled = num * coef;
+  let formatted;
+  if (scaled >= 10) formatted = String(Math.round(scaled));
+  else if (scaled >= 1) formatted = scaled.toFixed(1).replace('.', ',').replace(/,0$/, '');
+  else formatted = scaled.toFixed(2).replace('.', ',').replace(/,?0+$/, '');
+  return formatted + rest;
 }
 
 function openTuneForDay(di, mode) {
