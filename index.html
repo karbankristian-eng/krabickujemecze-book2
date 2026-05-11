@@ -127,14 +127,20 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
 }
 .meal-select select {
   width: 100%;
-  padding: 5px 6px;
+  padding: 5px 24px 5px 6px;
   font-size: 11px;
   font-family: 'Lato', sans-serif;
   border: 1px solid var(--green-300);
   border-radius: 6px;
-  background: var(--off-white);
+  background: var(--off-white) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23509636' d='M0 0l5 6 5-6z'/></svg>") no-repeat right 8px center;
   color: var(--text-body);
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .meal-select select:focus { outline: none; border-color: var(--green-600); }
 
@@ -670,6 +676,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
   border: 1px solid var(--green-300); border-radius: 6px;
   background: white; color: var(--text-body);
 }
+.tune-row select {
+  padding-right: 28px;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23509636' d='M0 0l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
 .tune-row label {
   font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 10px;
   text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
@@ -725,13 +739,39 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
   color: var(--text-primary);
 }
 .tip-btn:hover { background: var(--green-100); }
+.tip-info {
+  margin-top: 10px; padding: 12px 14px;
+  background: var(--green-100); border-radius: 8px;
+  border-left: 3px solid var(--green-600);
+  font-family: 'Lato', sans-serif;
+}
+.tip-info-title {
+  font-family: 'Montserrat', sans-serif; font-weight: 800;
+  font-size: 12px; color: var(--text-primary);
+  margin-bottom: 8px; text-transform: none; letter-spacing: 0;
+}
+.tip-info ul {
+  margin: 0 0 8px 0; padding-left: 18px;
+  font-size: 12px; line-height: 1.55; color: var(--text-body);
+}
+.tip-info ul li { margin-bottom: 4px; }
+.tip-info ul li strong { color: var(--green-600); font-family: 'Montserrat', sans-serif; font-weight: 700; }
+.tip-info-foot {
+  margin: 0; padding-top: 8px;
+  border-top: 1px dashed var(--green-300);
+  font-size: 11px; color: var(--text-muted); line-height: 1.5;
+}
+.tip-info-foot strong { color: var(--green-600); }
 .tip-swap-row { margin: 8px 0; }
 .tip-swap-row label { display: block; font-family: 'Lato', sans-serif; font-weight: 400; font-size: 12px; color: var(--text-body); margin-bottom: 5px; }
 .tip-swap-row select {
-  width: 100%; padding: 7px 10px; font-size: 12px;
+  width: 100%; padding: 7px 28px 7px 10px; font-size: 12px;
   font-family: 'Lato', sans-serif;
   border: 1.5px solid var(--green-300); border-radius: 6px;
-  background: var(--off-white); color: var(--text-body); cursor: pointer;
+  background: var(--off-white) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23509636' d='M0 0l5 6 5-6z'/></svg>") no-repeat right 10px center;
+  color: var(--text-body); cursor: pointer;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
 }
 .tip-swap-row select:focus { outline: none; border-color: var(--green-600); }
 
@@ -2203,9 +2243,17 @@ function restoreFromLS() {
     });
   }
 
-  // Overrides
+  // Overrides — načti jen procentní (numeric) overrides z advanced slideru.
+  // Staré objektové auto-edits z dřívějších verzí vyhoď (produkovaly nesmyslné úpravy).
   const ov = lsGetJSON('overrides');
-  if (ov) Object.assign(mealOverrides, ov);
+  if (ov) {
+    let purged = false;
+    Object.entries(ov).forEach(([k, v]) => {
+      if (typeof v === 'number') mealOverrides[k] = v;
+      else purged = true;
+    });
+    if (purged) lsSet('overrides', mealOverrides);
+  }
 
   // Extras
   const ex = lsGetJSON('extras');
@@ -2303,9 +2351,19 @@ function updateDayStatus(di, dayKcal) {
         <div class="day-tip-body">
           ${maxMealKey ? `<p>💡 Nejkaloričtější jídlo: <strong>${RECIPES.find(x=>x.id===maxRid).nazev}</strong> (${maxKcal} kcal)</p>` : ''}
           ${swapDropdown}
-          <p style="margin:8px 0 4px;color:var(--text-muted);font-size:11px;text-align:center;">— nebo —</p>
-          <button class="tip-btn" onclick="smartReduceDay(${di})">✂︎ Logicky snížit gramáže dne (bez oleje, méně vloček...)</button>
-          ${Object.keys(mealOverrides).some(k => k.startsWith(di+'_')) ? `<button class="tip-btn" onclick="clearDayEdits(${di})" style="margin-top:4px;color:#a02a14;">↺ Zrušit úpravy v tomto dni</button>` : ''}
+          <div class="tip-info">
+            <div class="tip-info-title">💡 Co můžeš udělat ručně, aby ses dostal/a na cíl:</div>
+            <ul>
+              <li>Vynech <strong>olivový nebo kokosový olej</strong> u jednoho jídla (~90 kcal / lžíce)</li>
+              <li>Vyhoď <strong>med, sirup nebo erythritol</strong> z dezertu (~30–60 kcal)</li>
+              <li>Menší porce <strong>oříšků nebo semínek</strong> (místo hrsti dej lžíci, ~60 kcal)</li>
+              <li>Menší <strong>příloha</strong> o ⅓ (rýže/těstoviny/kuskus 80g → 50g)</li>
+              <li>Nahraď <strong>smetanu</strong> jogurtem nebo mlékem</li>
+              <li>Vařené <strong>brambory</strong> místo smažených nebo hranolek</li>
+              <li>Vyber si <strong>menší kus pečiva</strong> (1 plátek místo 2)</li>
+            </ul>
+            <p class="tip-info-foot">Tip: nahoře je <strong>⚙️ Pokročilé nastavení</strong> — tam můžeš procentuálně upravit konkrétní jídlo, pokud chceš.</p>
+          </div>
         </div>
       </details>`;
   } else {
