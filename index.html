@@ -689,6 +689,50 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
   font-family: 'Montserrat', sans-serif; font-weight: 800;
   font-size: 9px; vertical-align: middle;
 }
+
+/* ─── SEMAFOR + DEN TIPY ─────────────────────────────────────────────── */
+.bubble-status { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; margin-top: 6px; line-height: 1.4; }
+.bubble-status.ok { color: #509636; }
+.bubble-status.warn { color: #E8A838; }
+.bubble-status.bad { color: #c0392b; }
+
+.day-tip { margin-top: 6px; text-align: left; }
+.day-tip summary {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px;
+  cursor: pointer; list-style: none; padding: 4px 0;
+}
+.day-tip summary::-webkit-details-marker { display: none; }
+.day-tip-body {
+  background: white; border-radius: 8px; padding: 10px; margin-top: 6px;
+  border: 1px solid var(--green-100); font-size: 12px;
+}
+.day-tip-body p { margin-bottom: 6px; color: var(--text-body); }
+.tip-btn {
+  display: block; width: 100%; margin-bottom: 4px; padding: 6px 10px;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px;
+  background: var(--off-white); border: 1px solid var(--green-300);
+  border-radius: 6px; cursor: pointer; text-align: left;
+  color: var(--text-primary);
+}
+.tip-btn:hover { background: var(--green-100); }
+
+.extras-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.extra-pill {
+  padding: 5px 10px; border-radius: 16px; border: 1.5px solid var(--green-300);
+  background: white; font-size: 11px; font-family: 'Lato', sans-serif;
+  cursor: pointer; transition: all 0.15s;
+  color: var(--text-primary);
+}
+.extra-pill:hover { background: var(--green-100); }
+.extra-pill.active { background: var(--green-600); color: white; border-color: var(--green-600); }
+.extra-kcal { font-size: 10px; opacity: 0.75; }
+
+.jidelnicek-extras-row {
+  margin-top: 10px; padding: 10px 14px;
+  background: var(--green-100); border-radius: 10px;
+  font-size: 13px; color: var(--text-body);
+}
+.jidelnicek-extras-row strong { font-family: 'Montserrat', sans-serif; font-weight: 800; color: var(--green-600); }
 </style>
 </head>
 <body>
@@ -752,8 +796,16 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
     </div>
   </div>
 
+  <!-- Pokročilé nastavení toggle -->
+  <div style="text-align:right; margin-bottom: 8px;">
+    <button onclick="document.getElementById('tune-panel').style.display = document.getElementById('tune-panel').style.display === 'none' ? 'block' : 'none'"
+            class="btn btn-secondary" style="padding:6px 14px; font-size:11px;">
+      ⚙️ Pokročilé nastavení
+    </button>
+  </div>
+
   <!-- Doladit příjem -->
-  <div id="tune-panel">
+  <div id="tune-panel" style="display:none">
     <div class="tune-banner" id="tune-banner"></div>
     <div class="tune-grid">
       <div class="tune-card">
@@ -1007,33 +1059,33 @@ const RECIPES = [
   {id:8,nazev:"Toast s volským okem a špenátem",kat:"Snídaně",kcal:396,b:22,s:42,t:15,photoUrl:PHOTO_BASE+"08_Toust_s_volskym_okem_a_spenátem.png",postup:["Na másle opečeme špenát, osolíme.","Smažíme volská oka dle chuti.","Poskládáme na toast, posypeme parmazánem."],ing:[{n:"Celozrnný toast",m:"2 plátky",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Špenát",m:"hrst",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžička",k:"Koření a dochucovadla"}]},
   {id:9,nazev:"Míchaná vajíčka s vločkami a šunkou",kat:"Snídaně",kcal:300,b:24,s:10,t:14,photoUrl:PHOTO_BASE+"09_Michana_vajicka_s_vlockami_a_sunkou.png",postup:["Vejce rozklepneme, přidáme vločky a sůl.","Šunku nakrájíme, přidáme k vejcím.","Mícháme na pánvi do požadované konzistence."],ing:[{n:"Vejce",m:"3 ks",k:"Mléčné výrobky"},{n:"Šunka",m:"50g",k:"Maso & ryby"},{n:"Ovesné vločky",m:"2 lžíce",k:"Suché potraviny"},{n:"Pažitka",m:"1 lžíce",k:"Zelenina & ovoce"}]},
   {id:10,nazev:"Jablečno-skořicová ovesná kaše",kat:"Snídaně",kcal:359,b:10,s:49,t:15,photoUrl:PHOTO_BASE+"10_Jablecno-skoricova_ovesna_kase.png",postup:["Vločky vaříme v mléce 5 minut.","Jablko nastrouháme a vmícháme do kaše.","Dochutíme skořicí a medem."],ing:[{n:"Ovesné vločky",m:"80g",k:"Suché potraviny"},{n:"Mléko",m:"250ml",k:"Mléčné výrobky"},{n:"Jablko",m:"1 ks",k:"Zelenina & ovoce"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
-  {id:11,nazev:"Tuňáková pomazánka s lučinou",kat:"Svačiny & Pomazánky",kcal:121,b:6,s:5,t:8,photoUrl:PHOTO_BASE+"11_Tunakova_pomazanka_s_lucinou.png",postup:["Tuňáka scedíme a rozmačkáme vidličkou.","Smícháme s Lučinou a citronovou šťávou.","Dochutime solí, přidáme nasekanou pažitku."],ing:[{n:"Tuňák v olivovém oleji",m:"1 plechovka",k:"Suché potraviny"},{n:"Sýr Lučina",m:"80g",k:"Mléčné výrobky"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"}]},
-  {id:12,nazev:"Kari-mrkvová pomazánka",kat:"Svačiny & Pomazánky",kcal:405,b:12,s:13,t:34,photoUrl:PHOTO_BASE+"12_Kari-mrkvova_pomazanka.png",postup:["Mrkev uvaříme do měkka, necháme vychladnout.","V mixéru rozmixujeme s kešu a kari.","Dochutíme citronem, solí a pepřem."],ing:[{n:"Mrkev",m:"2 ks",k:"Zelenina & ovoce"},{n:"Kešu ořechy",m:"80g",k:"Suché potraviny"},{n:"Kari koření",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Citronová šťáva",m:"1 lžíce",k:"Koření a dochucovadla"}]},
-  {id:13,nazev:"Ořechová pomazánka",kat:"Svačiny & Pomazánky",kcal:115,b:4,s:1,t:10,photoUrl:PHOTO_BASE+"13_Orechova_pomazanka.png",postup:["Ořechy nahrubo nasekáme nebo pomixujeme.","Smícháme s tvarohem a medem.","Dochutíme solí, podáváme na chlebu."],ing:[{n:"Vlašské nebo jiné ořechy",m:"50g",k:"Suché potraviny"},{n:"Tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
-  {id:14,nazev:"Pórková pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:259,b:18,s:27,t:8,photoUrl:PHOTO_BASE+"14_Porkova_pomazanka_s_Cottage.png",postup:["Pórek nakrájíme najemno, osolíme.","Smícháme Cottage, tvrdý sýr a zakysanou smetanu.","Přidáme pórek, dobře promícháme."],ing:[{n:"Cottage sýr",m:"100g",k:"Mléčné výrobky"},{n:"Tvrdý sýr 30%",m:"100g",k:"Mléčné výrobky"},{n:"Pórek",m:"1 menší",k:"Zelenina & ovoce"},{n:"Zakysaná smetana",m:"20g",k:"Mléčné výrobky"}]},
-  {id:15,nazev:"Ředkvičkovo-vaječná pomazánka",kat:"Svačiny & Pomazánky",kcal:252,b:9,s:33,t:11,photoUrl:PHOTO_BASE+"15_Redkvickovo-vajecna_pomazanka.png",postup:["Vejce uvaříme natvrdo, oloupeme a rozmačkáme.","Ředkvičky nakrájíme na plátky.","Smícháme s jogurtem a pažitkou."],ing:[{n:"Vajíčka natvrdo",m:"3 ks",k:"Mléčné výrobky"},{n:"Ředkvičky",m:"5 ks",k:"Zelenina & ovoce"},{n:"Jogurt nebo smetana",m:"2 lžíce",k:"Mléčné výrobky"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"}]},
-  {id:16,nazev:"Pomazánka z červené řepy a sýru",kat:"Svačiny & Pomazánky",kcal:102,b:7,s:9,t:9,photoUrl:PHOTO_BASE+"16_Pomazanka_z_cervene_repy_a_syru.png",postup:["Vařenou řepu nakrájíme na kousky.","V mixéru rozmixujeme se sýrem a olejem.","Dochutíme solí a pepřem."],ing:[{n:"Červená řepa vařená",m:"200g",k:"Zelenina & ovoce"},{n:"Tvrdý sýr",m:"50g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
-  {id:17,nazev:"Pomazánka z uzeného tofu",kat:"Svačiny & Pomazánky",kcal:132,b:10,s:4,t:8,photoUrl:PHOTO_BASE+"17_Pomazanka_z_uzeneho_tofu.png",postup:["Tofu rozmačkáme vidličkou nebo pomixujeme.","Smícháme s jogurtem a olejem.","Přidáme bylinky, dochutíme solí."],ing:[{n:"Uzené tofu",m:"1 balení",k:"Mléčné výrobky"},{n:"Bílý jogurt",m:"150g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"½ lžíce",k:"Koření a dochucovadla"},{n:"Bylinky (pažitka, petrželka)",m:"trochu",k:"Zelenina & ovoce"}]},
-  {id:18,nazev:"Jablečná pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:307,b:18,s:42,t:9,photoUrl:PHOTO_BASE+"18_Jablecna_pomazanka_s_Cottage.png",postup:["Jablko oloupeme a nastrouháme najemno.","Smícháme s Cottage, medem a skořicí.","Podáváme na chlebu nebo jako dip."],ing:[{n:"Cottage sýr",m:"250g",k:"Mléčné výrobky"},{n:"Jablko",m:"1 ks",k:"Zelenina & ovoce"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"}]},
+  {id:11,nazev:"Tuňáková pomazánka s lučinou",kat:"Svačiny & Pomazánky",kcal:261,b:12,s:33,t:8,photoUrl:PHOTO_BASE+"11_Tunakova_pomazanka_s_lucinou.png",postup:["Tuňáka scedíme a rozmačkáme vidličkou.","Smícháme s Lučinou a citronovou šťávou.","Dochutime solí, přidáme nasekanou pažitku."],ing:[{n:"Tuňák v olivovém oleji",m:"1 plechovka",k:"Suché potraviny"},{n:"Sýr Lučina",m:"80g",k:"Mléčné výrobky"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:12,nazev:"Kari-mrkvová pomazánka",kat:"Svačiny & Pomazánky",kcal:545,b:18,s:41,t:34,photoUrl:PHOTO_BASE+"12_Kari-mrkvova_pomazanka.png",postup:["Mrkev uvaříme do měkka, necháme vychladnout.","V mixéru rozmixujeme s kešu a kari.","Dochutíme citronem, solí a pepřem."],ing:[{n:"Mrkev",m:"2 ks",k:"Zelenina & ovoce"},{n:"Kešu ořechy",m:"80g",k:"Suché potraviny"},{n:"Kari koření",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Citronová šťáva",m:"1 lžíce",k:"Koření a dochucovadla"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:13,nazev:"Ořechová pomazánka",kat:"Svačiny & Pomazánky",kcal:255,b:10,s:29,t:10,photoUrl:PHOTO_BASE+"13_Orechova_pomazanka.png",postup:["Ořechy nahrubo nasekáme nebo pomixujeme.","Smícháme s tvarohem a medem.","Dochutíme solí, podáváme na chlebu."],ing:[{n:"Vlašské nebo jiné ořechy",m:"50g",k:"Suché potraviny"},{n:"Tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:14,nazev:"Pórková pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:399,b:24,s:55,t:8,photoUrl:PHOTO_BASE+"14_Porkova_pomazanka_s_Cottage.png",postup:["Pórek nakrájíme najemno, osolíme.","Smícháme Cottage, tvrdý sýr a zakysanou smetanu.","Přidáme pórek, dobře promícháme."],ing:[{n:"Cottage sýr",m:"100g",k:"Mléčné výrobky"},{n:"Tvrdý sýr 30%",m:"100g",k:"Mléčné výrobky"},{n:"Pórek",m:"1 menší",k:"Zelenina & ovoce"},{n:"Zakysaná smetana",m:"20g",k:"Mléčné výrobky"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:15,nazev:"Ředkvičkovo-vaječná pomazánka",kat:"Svačiny & Pomazánky",kcal:392,b:15,s:61,t:11,photoUrl:PHOTO_BASE+"15_Redkvickovo-vajecna_pomazanka.png",postup:["Vejce uvaříme natvrdo, oloupeme a rozmačkáme.","Ředkvičky nakrájíme na plátky.","Smícháme s jogurtem a pažitkou."],ing:[{n:"Vajíčka natvrdo",m:"3 ks",k:"Mléčné výrobky"},{n:"Ředkvičky",m:"5 ks",k:"Zelenina & ovoce"},{n:"Jogurt nebo smetana",m:"2 lžíce",k:"Mléčné výrobky"},{n:"Pažitka",m:"trochu",k:"Zelenina & ovoce"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:16,nazev:"Pomazánka z červené řepy a sýru",kat:"Svačiny & Pomazánky",kcal:242,b:13,s:37,t:9,photoUrl:PHOTO_BASE+"16_Pomazanka_z_cervene_repy_a_syru.png",postup:["Vařenou řepu nakrájíme na kousky.","V mixéru rozmixujeme se sýrem a olejem.","Dochutíme solí a pepřem."],ing:[{n:"Červená řepa vařená",m:"200g",k:"Zelenina & ovoce"},{n:"Tvrdý sýr",m:"50g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:17,nazev:"Pomazánka z uzeného tofu",kat:"Svačiny & Pomazánky",kcal:272,b:16,s:32,t:8,photoUrl:PHOTO_BASE+"17_Pomazanka_z_uzeneho_tofu.png",postup:["Tofu rozmačkáme vidličkou nebo pomixujeme.","Smícháme s jogurtem a olejem.","Přidáme bylinky, dochutíme solí."],ing:[{n:"Uzené tofu",m:"1 balení",k:"Mléčné výrobky"},{n:"Bílý jogurt",m:"150g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"½ lžíce",k:"Koření a dochucovadla"},{n:"Bylinky (pažitka, petrželka)",m:"trochu",k:"Zelenina & ovoce"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
+  {id:18,nazev:"Jablečná pomazánka s Cottage",kat:"Svačiny & Pomazánky",kcal:447,b:24,s:70,t:9,photoUrl:PHOTO_BASE+"18_Jablecna_pomazanka_s_Cottage.png",postup:["Jablko oloupeme a nastrouháme najemno.","Smícháme s Cottage, medem a skořicí.","Podáváme na chlebu nebo jako dip."],ing:[{n:"Cottage sýr",m:"250g",k:"Mléčné výrobky"},{n:"Jablko",m:"1 ks",k:"Zelenina & ovoce"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Med",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Celozrnný chléb",m:"2 plátky",k:"Suché potraviny"}]},
   {id:19,nazev:"Marocká dýňovo-cizrnová polévka",kat:"Polévky",kcal:165,b:8,s:36,t:2,photoUrl:PHOTO_BASE+"19_Marocka_dynovo-cizrnova_polevka.png",postup:["Dýni nakrájíme a podusíme ve vývaru s kořením.","Přidáme cizrnu a kokosové mléko, povaříme.","Rozmixujeme do hladka, dochutíme."],ing:[{n:"Dýně Hokkaido",m:"400g",k:"Zelenina & ovoce"},{n:"Cizrna konzervovaná",m:"1 plechovka",k:"Suché potraviny"},{n:"Kokosové mléko",m:"100ml",k:"Suché potraviny"},{n:"Ras el hanout",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Zeleninový vývar",m:"700ml",k:"Suché potraviny"}]},
   {id:20,nazev:"Zdravá květáková polévka",kat:"Polévky",kcal:206,b:6,s:26,t:8,photoUrl:PHOTO_BASE+"20_Zdrava_kvetakova_polevka.png",postup:["Cibuli osmažíme, přidáme květák a brambory.","Zalijeme vývarem a vaříme 15 minut.","Rozmixujeme, dochutíme muškátem."],ing:[{n:"Květák",m:"1 malý",k:"Zelenina & ovoce"},{n:"Brambory",m:"2 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
   {id:21,nazev:"Kedlubnová polévka",kat:"Polévky",kcal:61,b:1,s:2,t:1,photoUrl:PHOTO_BASE+"21_Kedlubnova_polevka.png",postup:["Cibuli osmažíme, přidáme nakrájenou kedlubnu.","Zalijeme vývarem, vaříme 12 minut.","Rozmixujeme, zjemníme smetanou."],ing:[{n:"Kedlubna",m:"2 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Zeleninový vývar",m:"800ml",k:"Suché potraviny"},{n:"Smetana ke šlehání",m:"2 lžíce",k:"Mléčné výrobky"}]},
   {id:22,nazev:"Polévka s kuřecím masem a fazolemi",kat:"Polévky",kcal:172,b:24,s:10,t:4,photoUrl:PHOTO_BASE+"22_Polevka_s_kurecim_masem_a_fazolemi.png",postup:["Restujeme pórek, přidáme šalvěj.","Přilijeme vývar, přidáme kuřecí maso.","Vmícháme fazole, povaříme 5 minut."],ing:[{n:"Kuřecí prsa",m:"200g",k:"Maso & ryby"},{n:"Fazole bílé konzervované",m:"1 plechovka",k:"Suché potraviny"},{n:"Rajčata",m:"2 ks",k:"Zelenina & ovoce"},{n:"Vývar",m:"800ml",k:"Suché potraviny"}]},
   {id:23,nazev:"Marocké kuře s citrónovým kuskusem",kat:"Hlavní jídla",kcal:348,b:34,s:37,t:7,photoUrl:PHOTO_BASE+"23_Marocke_kure_s_citronovym_kuskusem.png",postup:["Kuře obalíme kořením, opečeme na oleji.","Přidáme rajčata a vývar, dusíme 20 minut.","Kuskus zalijeme vroucí vodou s citronem."],ing:[{n:"Kuřecí prsa",m:"300g",k:"Maso & ryby"},{n:"Kuskus",m:"150g",k:"Suché potraviny"},{n:"Citron",m:"1 ks",k:"Zelenina & ovoce"},{n:"Ras el hanout",m:"1 lžička",k:"Koření a dochucovadla"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
   {id:24,nazev:"Kuřecí závitky se špenátem a kozím sýrem",kat:"Hlavní jídla",kcal:445,b:19,s:52,t:16,photoUrl:PHOTO_BASE+"24_Kureci_zavitky_se_spenátem_a_kozim_syrem.png",postup:["Prsa naklepeme, plníme špenátem a sýrem.","Srolujeme, zajistíme párátky, opečeme.","Zapečeme v troubě 25 minut na 180 °C."],ing:[{n:"Kuřecí prsa",m:"300g",k:"Maso & ryby"},{n:"Špenát čerstvý",m:"100g",k:"Zelenina & ovoce"},{n:"Kozí sýr",m:"80g",k:"Mléčné výrobky"},{n:"Rýže nebo quinoa",m:"150g",k:"Suché potraviny"}]},
-  {id:25,nazev:"Kuřecí paličky s hráškovým pyré",kat:"Hlavní jídla",kcal:517,b:37,s:46,t:18,photoUrl:PHOTO_BASE+"25_Kureci_palicky_s_hraskovym_pyre.png",postup:["Paličky okořeníme a pečeme 40 minut na 200 °C.","Hrášek uvaříme s brambory do měkka.","Rozmixujeme s máslem na hladké pyré."],ing:[{n:"Kuřecí paličky",m:"4 ks",k:"Maso & ryby"},{n:"Hrášek mražený",m:"300g",k:"Zelenina & ovoce"},{n:"Brambory",m:"200g",k:"Zelenina & ovoce"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"}]},
-  {id:26,nazev:"Plněná krůtí prsa s prosciutto",kat:"Hlavní jídla",kcal:675,b:50,s:57,t:27,photoUrl:PHOTO_BASE+"26_Plnena_kruti_prsa_s_prosciutto.png",postup:["Prsa naklepeme, plníme brokolicovým pyré.","Přeložíme, zabalíme do prosciutta.","Opečeme na oleji a dopečeme v troubě."],ing:[{n:"Krůtí prsa",m:"400g",k:"Maso & ryby"},{n:"Prosciutto",m:"6 plátků",k:"Maso & ryby"},{n:"Špenát",m:"100g",k:"Zelenina & ovoce"},{n:"Batáty",m:"300g",k:"Zelenina & ovoce"}]},
-  {id:27,nazev:"Zelno-krůtí karbanátky",kat:"Hlavní jídla",kcal:267,b:35,s:16,t:7,photoUrl:PHOTO_BASE+"27_Zelno-kruti_karbanatky.png",postup:["Zelí nastrouháme, smícháme s mletým masem.","Přidáme vejce, vločky, koření, tvarujeme.","Smažíme na pánvi dozlatova z obou stran."],ing:[{n:"Krůtí mleté maso",m:"400g",k:"Maso & ryby"},{n:"Zelí bílé",m:"200g",k:"Zelenina & ovoce"},{n:"Vejce",m:"1 ks",k:"Mléčné výrobky"},{n:"Ovesné vločky",m:"3 lžíce",k:"Suché potraviny"}]},
+  {id:25,nazev:"Kuřecí paličky s hráškovým pyré",kat:"Hlavní jídla",kcal:517,b:37,s:46,t:18,photoUrl:PHOTO_BASE+"25_Kureci_palicky_s_hraskovym_pyre.png",postup:["Paličky okořeníme a pečeme 40 minut na 200 °C.","Hrášek uvaříme s brambory do měkka.","Rozmixujeme s máslem na hladké pyré."],ing:[{n:"Kuřecí paličky",m:"1 ks",k:"Maso & ryby"},{n:"Hrášek mražený",m:"75g",k:"Zelenina & ovoce"},{n:"Brambory",m:"50g",k:"Zelenina & ovoce"},{n:"Máslo",m:"5g",k:"Mléčné výrobky"}]},
+  {id:26,nazev:"Plněná krůtí prsa s prosciutto",kat:"Hlavní jídla",kcal:675,b:50,s:57,t:27,photoUrl:PHOTO_BASE+"26_Plnena_kruti_prsa_s_prosciutto.png",postup:["Prsa naklepeme, plníme brokolicovým pyré.","Přeložíme, zabalíme do prosciutta.","Opečeme na oleji a dopečeme v troubě."],ing:[{n:"Krůtí prsa",m:"200g",k:"Maso & ryby"},{n:"Prosciutto",m:"3 plátky",k:"Maso & ryby"},{n:"Špenát",m:"50g",k:"Zelenina & ovoce"},{n:"Batáty",m:"150g",k:"Zelenina & ovoce"}]},
+  {id:27,nazev:"Zelno-krůtí karbanátky",kat:"Hlavní jídla",kcal:267,b:35,s:16,t:7,photoUrl:PHOTO_BASE+"27_Zelno-kruti_karbanatky.png",postup:["Zelí nastrouháme, smícháme s mletým masem.","Přidáme vejce, vločky, koření, tvarujeme.","Smažíme na pánvi dozlatova z obou stran."],ing:[{n:"Krůtí mleté maso",m:"120g",k:"Maso & ryby"},{n:"Zelí bílé",m:"60g",k:"Zelenina & ovoce"},{n:"Vejce",m:"¼ ks (1 vejce na 4 porce)",k:"Mléčné výrobky"},{n:"Ovesné vločky",m:"1 lžíce",k:"Suché potraviny"}]},
   {id:28,nazev:"Losos s cizrnovou kaší",kat:"Hlavní jídla",kcal:384,b:28,s:25,t:25,photoUrl:PHOTO_BASE+"28_Losos_s_cizrnovou_kasi.png",postup:["Lososa okořeníme a pečeme 20 minut na 180 °C.","Cizrnu scedíme a rozmačkáme vidličkou.","Přidáme citron, olivový olej a sůl."],ing:[{n:"Losos filet",m:"200g",k:"Maso & ryby"},{n:"Cizrna konzervovaná",m:"1 plechovka",k:"Suché potraviny"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
   {id:29,nazev:"Losos na másle s anglickou zeleninou",kat:"Hlavní jídla",kcal:595,b:35,s:13,t:54,photoUrl:PHOTO_BASE+"29_Losos_na_masle_s_anglickou_zeleninou.png",postup:["Lososa opečeme na másle 3 minuty z každé strany.","Brokolici a hrášek uvaříme v páře 8 minut.","Servírujeme s citronem a solí."],ing:[{n:"Losos filet",m:"200g",k:"Maso & ryby"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"},{n:"Brokolice",m:"200g",k:"Zelenina & ovoce"},{n:"Hrášek",m:"100g",k:"Zelenina & ovoce"}]},
   {id:30,nazev:"Lososové kapsičky",kat:"Hlavní jídla",kcal:794,b:43,s:66,t:29,photoUrl:PHOTO_BASE+"30_Lososove_kapsicky.png",postup:["Lososa smícháme se špenátem a cream cheese.","Listové těsto nakrájíme, plníme náplní.","Přeložíme, potřeme vejcem, pečeme 20 minut."],ing:[{n:"Losos",m:"200g",k:"Maso & ryby"},{n:"Listové těsto",m:"1 balení",k:"Suché potraviny"},{n:"Špenát",m:"100g",k:"Zelenina & ovoce"},{n:"Cream cheese",m:"80g",k:"Mléčné výrobky"}]},
   {id:31,nazev:"Treska na másle s dýňovým překvapením",kat:"Hlavní jídla",kcal:513,b:36,s:22,t:32,photoUrl:PHOTO_BASE+"31_Treska_na_masle_s_dynowym_prekvapenim.png",postup:["Tresku posolíme, pokapeme citronem, upečeme.","Dýni nakrájíme, pokapeme olejem, pečeme.","Dip připravíme smícháním avokáda a Cottage."],ing:[{n:"Treska filet",m:"300g",k:"Maso & ryby"},{n:"Dýně Hokkaido",m:"300g",k:"Zelenina & ovoce"},{n:"Máslo",m:"20g",k:"Mléčné výrobky"},{n:"Citron",m:"½ ks",k:"Zelenina & ovoce"}]},
   {id:32,nazev:"Ryba na tymiánu se zeleninou",kat:"Hlavní jídla",kcal:415,b:31,s:43,t:12,photoUrl:PHOTO_BASE+"32_Ryba_na_tymanu_se_zeleninou.png",postup:["Rybu okořeníme tymiánem, solí a pepřem.","Batáty a brokolici nakrájíme, pokapeme olejem.","Vše zapečeme společně 25 minut na 200 °C."],ing:[{n:"Bílá ryba (treska/pstruh)",m:"300g",k:"Maso & ryby"},{n:"Brokolice",m:"200g",k:"Zelenina & ovoce"},{n:"Batáty",m:"200g",k:"Zelenina & ovoce"},{n:"Tymián",m:"trochu",k:"Koření a dochucovadla"}]},
   {id:33,nazev:"Mrkvový perkelt",kat:"Hlavní jídla",kcal:161,b:7,s:28,t:7,photoUrl:PHOTO_BASE+"33_Mrkvovy_perkelt.png",postup:["Cibuli osmažíme, přidáme papriku.","Mrkev nakrájíme, přidáme s protlakem.","Podlijeme vodou, dusíme 20 minut."],ing:[{n:"Mrkev",m:"400g",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"},{n:"Paprika mletá",m:"1 lžíce",k:"Koření a dochucovadla"},{n:"Rajčatový protlak",m:"2 lžíce",k:"Suché potraviny"}]},
-  {id:34,nazev:"Sójová čína",kat:"Hlavní jídla",kcal:273,b:36,s:25,t:3,photoUrl:PHOTO_BASE+"34_Sojova_cina.png",postup:["Maso nakrájíme na proužky, opečeme na woku.","Přidáme zeleninu a restujeme 5 minut.","Přilijeme sójovou omáčku, promícháme."],ing:[{n:"Kuřecí nebo krůtí prsa",m:"300g",k:"Maso & ryby"},{n:"Sójová omáčka",m:"3 lžíce",k:"Koření a dochucovadla"},{n:"Zelenina (paprika, cibule, mrkev)",m:"300g",k:"Zelenina & ovoce"},{n:"Těstoviny nebo rýže",m:"150g",k:"Suché potraviny"}]},
+  {id:34,nazev:"Sójová čína",kat:"Hlavní jídla",kcal:273,b:36,s:25,t:3,photoUrl:PHOTO_BASE+"34_Sojova_cina.png",postup:["Maso nakrájíme na proužky, opečeme na woku.","Přidáme zeleninu a restujeme 5 minut.","Přilijeme sójovou omáčku, promícháme."],ing:[{n:"Kuřecí nebo krůtí prsa",m:"150g",k:"Maso & ryby"},{n:"Sójová omáčka",m:"1 lžíce",k:"Koření a dochucovadla"},{n:"Zelenina (paprika, cibule, mrkev)",m:"150g",k:"Zelenina & ovoce"},{n:"Těstoviny nebo rýže",m:"80g",k:"Suché potraviny"}]},
   {id:35,nazev:"Bramborová pánev se zeleninou",kat:"Hlavní jídla",kcal:407,b:27,s:46,t:12,photoUrl:PHOTO_BASE+"35_Bramborova_panev_se_zeleninou.png",postup:["Brambory uvaříme, nakrájíme na kostky.","Na pánvi osmažíme papiku a cibuli.","Přidáme brambory a rozklepneme vejce."],ing:[{n:"Brambory",m:"300g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Paprika",m:"1 ks",k:"Zelenina & ovoce"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"}]},
-  {id:36,nazev:"Zapečená pohanka se zeleninou",kat:"Hlavní jídla",kcal:350,b:9,s:56,t:9,photoUrl:PHOTO_BASE+"36_Zapecena_pohanka_se_zeleninou.png",postup:["Pohanku uvaříme, smícháme se zeleninou.","Přidáme vejce, přeneseme do pekáče.","Posypeme sýrem, zapečeme 20 minut."],ing:[{n:"Pohanka",m:"200g",k:"Suché potraviny"},{n:"Zelenina dle sezóny",m:"300g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Sýr strouhaný",m:"50g",k:"Mléčné výrobky"}]},
-  {id:37,nazev:"Slaný bramborový koláč s hovězím masem",kat:"Hlavní jídla",kcal:240,b:18,s:9,t:14,photoUrl:PHOTO_BASE+"37_Slany_bramborovy_kolac_s_hovezim_masem.png",postup:["Brambory nastrouháme, smícháme s vejci.","Cibuli osmažíme s mletým masem.","Vrstvíme základ, maso, základ, zapečeme."],ing:[{n:"Mleté hovězí maso",m:"300g",k:"Maso & ryby"},{n:"Brambory",m:"400g",k:"Zelenina & ovoce"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Cibule",m:"1 ks",k:"Zelenina & ovoce"}]},
+  {id:36,nazev:"Zapečená pohanka se zeleninou",kat:"Hlavní jídla",kcal:350,b:9,s:56,t:9,photoUrl:PHOTO_BASE+"36_Zapecena_pohanka_se_zeleninou.png",postup:["Pohanku uvaříme, smícháme se zeleninou.","Přidáme vejce, přeneseme do pekáče.","Posypeme sýrem, zapečeme 20 minut."],ing:[{n:"Pohanka",m:"100g",k:"Suché potraviny"},{n:"Zelenina dle sezóny",m:"150g",k:"Zelenina & ovoce"},{n:"Vejce",m:"1 ks",k:"Mléčné výrobky"},{n:"Sýr strouhaný",m:"25g",k:"Mléčné výrobky"}]},
+  {id:37,nazev:"Slaný bramborový koláč s hovězím masem",kat:"Hlavní jídla",kcal:240,b:18,s:9,t:14,photoUrl:PHOTO_BASE+"37_Slany_bramborovy_kolac_s_hovezim_masem.png",postup:["Brambory nastrouháme, smícháme s vejci.","Cibuli osmažíme s mletým masem.","Vrstvíme základ, maso, základ, zapečeme."],ing:[{n:"Mleté hovězí maso",m:"100g",k:"Maso & ryby"},{n:"Brambory",m:"150g",k:"Zelenina & ovoce"},{n:"Vejce",m:"½ ks (1 vejce na 2 porce)",k:"Mléčné výrobky"},{n:"Cibule",m:"¼ ks",k:"Zelenina & ovoce"}]},
   {id:38,nazev:"Brokolicovo-jahelná miska",kat:"Hlavní jídla",kcal:445,b:19,s:52,t:16,photoUrl:PHOTO_BASE+"38_Brokolicovo-jahelna_miska.png",postup:["Jáhly uvaříme dle návodu, propláchneme.","Brokolici a tofu opečeme na oleji s kořením.","Vše smícháme, dochutíme a přidáme kešu."],ing:[{n:"Jáhly nebo quinoa",m:"100g",k:"Suché potraviny"},{n:"Brokolice",m:"½ malé",k:"Zelenina & ovoce"},{n:"Tofu",m:"½ balení",k:"Mléčné výrobky"},{n:"Kešu ořechy",m:"2 lžíce",k:"Suché potraviny"}]},
   {id:39,nazev:"Orientální quinoový salát s lososem",kat:"Lehká jídla & Saláty",kcal:630,b:41,s:44,t:31,photoUrl:PHOTO_BASE+"39_Orientalni_quinoovy_salat_s_lososem.png",postup:["Quinou uvaříme, necháme vychladnout.","Lososa pečeme 15 minut, nakrájíme.","Smícháme s avokádem a sójovou omáčkou."],ing:[{n:"Quinoa",m:"150g",k:"Suché potraviny"},{n:"Losos",m:"150g",k:"Maso & ryby"},{n:"Avokádo",m:"1 ks",k:"Zelenina & ovoce"},{n:"Sójová omáčka",m:"2 lžíce",k:"Koření a dochucovadla"}]},
   {id:40,nazev:"Rukolový salát s mozzarellou",kat:"Lehká jídla & Saláty",kcal:333,b:25,s:25,t:14,photoUrl:PHOTO_BASE+"40_Rukolovy_salat_s_mozzarellou.png",postup:["Rukolu omyjeme, cherry rajčata překrájíme.","Mozzarellu natrheme na kousky.","Promícháme, pokapeme olejem a octem."],ing:[{n:"Rukola",m:"100g",k:"Zelenina & ovoce"},{n:"Mozzarella",m:"125g",k:"Mléčné výrobky"},{n:"Cherry rajčata",m:"150g",k:"Zelenina & ovoce"},{n:"Olivový olej",m:"1 lžíce",k:"Koření a dochucovadla"}]},
@@ -1042,16 +1094,16 @@ const RECIPES = [
   {id:43,nazev:"Salát z černé čočky s Hokkaido a tofu",kat:"Lehká jídla & Saláty",kcal:532,b:29,s:42,t:26,photoUrl:PHOTO_BASE+"43_Salat_z_cerne_cocky_s_Hokkajdo_a_tofu.png",postup:["Hokkaido nakrájíme a upečeme do měkka.","Černou čočku uvaříme, scedíme.","Smícháme s uzeným tofu a zálivkou."],ing:[{n:"Černá čočka",m:"150g",k:"Suché potraviny"},{n:"Dýně Hokkaido",m:"200g",k:"Zelenina & ovoce"},{n:"Tofu uzené",m:"100g",k:"Mléčné výrobky"},{n:"Olivový olej",m:"2 lžíce",k:"Koření a dochucovadla"}]},
   {id:44,nazev:"Těstovinový salát s prosciuttem",kat:"Lehká jídla & Saláty",kcal:535,b:34,s:63,t:18,photoUrl:PHOTO_BASE+"44_Testovinovy_salat_s_prosciuttem.png",postup:["Těstoviny uvaříme, necháme vychladnout.","Prosciutto upečeme v troubě do křupava.","Smícháme s rajčátky, rukolou a zálivkou."],ing:[{n:"Těstoviny celozrnné",m:"200g",k:"Suché potraviny"},{n:"Prosciutto",m:"80g",k:"Maso & ryby"},{n:"Cherry rajčata",m:"150g",k:"Zelenina & ovoce"},{n:"Rukolová nebo baby špenát",m:"50g",k:"Zelenina & ovoce"}]},
   {id:45,nazev:"Zdravý hamburger",kat:"Hlavní jídla",kcal:434,b:39,s:36,t:15,photoUrl:PHOTO_BASE+"45_Zdravy_hamburger.png",postup:["Mleté maso ochutíme, vytvarujeme burger.","Grilujeme nebo smažíme 4 minuty z každé strany.","Poskládáme v housce se salátem a rajčetem."],ing:[{n:"Hovězí nebo krůtí mleté maso",m:"150g",k:"Maso & ryby"},{n:"Celozrnná burger houska",m:"1 ks",k:"Suché potraviny"},{n:"Listový salát",m:"hrst",k:"Zelenina & ovoce"},{n:"Rajče",m:"1 ks",k:"Zelenina & ovoce"}]},
-  {id:46,nazev:"Cuketové nudle",kat:"Hlavní jídla",kcal:484,b:36,s:57,t:11,photoUrl:PHOTO_BASE+"46_Cuketove_nudle.png",postup:["Cuketu nastrouháme na spiralizéru na nudle.","Maso nebo tofu opečeme s rajčatovou omáčkou.","Smícháme s cuketovými nudlemi, posypeme."],ing:[{n:"Cuketa",m:"2 velké",k:"Zelenina & ovoce"},{n:"Kuřecí prsa nebo tofu",m:"200g",k:"Maso & ryby"},{n:"Rajčatová omáčka",m:"150ml",k:"Suché potraviny"},{n:"Parmazán strouhaný",m:"20g",k:"Mléčné výrobky"}]},
-  {id:47,nazev:"Müsli čtverečky",kat:"Sladká tečka",kcal:133,b:6,s:16,t:5,photoUrl:PHOTO_BASE+"47_Musli_ctverecky.png",postup:["Vločky smícháme s ořechy, olejem a sirupem.","Přidáme vejce, promícháme do pevné hmoty.","Rozetřeme do pekáče, pečeme 25 minut."],ing:[{n:"Ovesné vločky (nepomleté i jemné)",m:"3 šálky",k:"Suché potraviny"},{n:"Ořechy a semínka (lískové, lněné, slunečnicové)",m:"½ šálku",k:"Suché potraviny"},{n:"Kokosový olej",m:"¼ šálku",k:"Koření a dochucovadla"},{n:"Med nebo javorový sirup",m:"3 lžíce",k:"Suché potraviny"},{n:"Vejce",m:"3 ks",k:"Mléčné výrobky"}]},
-  {id:48,nazev:"Šťavnatý banánový chléb",kat:"Sladká tečka",kcal:181,b:7,s:29,t:3,photoUrl:PHOTO_BASE+"48_Stavnaty_bananovy_chleb.png",postup:["Banány rozmačkáme, smícháme s vejci a medem.","Vmícháme ovesné vločky do těsta.","Pečeme v troubě 35 minut na 175 °C."],ing:[{n:"Banány přezrálé",m:"3 ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"200g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Med",m:"2 lžíce",k:"Suché potraviny"}]},
+  {id:46,nazev:"Cuketové nudle",kat:"Hlavní jídla",kcal:484,b:36,s:57,t:11,photoUrl:PHOTO_BASE+"46_Cuketove_nudle.png",postup:["Cuketu nastrouháme na spiralizéru na nudle.","Maso nebo tofu opečeme s rajčatovou omáčkou.","Smícháme s cuketovými nudlemi, posypeme."],ing:[{n:"Cuketa",m:"1 ks",k:"Zelenina & ovoce"},{n:"Kuřecí prsa nebo tofu",m:"120g",k:"Maso & ryby"},{n:"Rajčatová omáčka",m:"80ml",k:"Suché potraviny"},{n:"Parmazán strouhaný",m:"10g",k:"Mléčné výrobky"}]},
+  {id:47,nazev:"Müsli čtverečky",kat:"Sladká tečka",kcal:133,b:6,s:16,t:5,photoUrl:PHOTO_BASE+"47_Musli_ctverecky.png",postup:["Vločky smícháme s ořechy, olejem a sirupem.","Přidáme vejce, promícháme do pevné hmoty.","Rozetřeme do pekáče, pečeme 25 minut."],ing:[{n:"Ovesné vločky",m:"30g",k:"Suché potraviny"},{n:"Ořechy a semínka",m:"10g",k:"Suché potraviny"},{n:"Kokosový olej",m:"½ lžičky",k:"Koření a dochucovadla"},{n:"Med nebo javorový sirup",m:"1 lžička",k:"Suché potraviny"},{n:"Vejce",m:"¼ ks",k:"Mléčné výrobky"}]},
+  {id:48,nazev:"Šťavnatý banánový chléb",kat:"Sladká tečka",kcal:181,b:7,s:29,t:3,photoUrl:PHOTO_BASE+"48_Stavnaty_bananovy_chleb.png",postup:["Banány rozmačkáme, smícháme s vejci a medem.","Vmícháme ovesné vločky do těsta.","Pečeme v troubě 35 minut na 175 °C."],ing:[{n:"Banán přezrálý",m:"½ ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"30g",k:"Suché potraviny"},{n:"Vejce",m:"¼ ks",k:"Mléčné výrobky"},{n:"Med",m:"½ lžičky",k:"Suché potraviny"}]},
   {id:49,nazev:"Domácí ovesné cookies",kat:"Sladká tečka",kcal:68,b:2,s:8,t:6,photoUrl:PHOTO_BASE+"49_Domaci_ovesne_cookies.png",postup:["Banán rozmačkáme, smícháme s vločkami.","Přidáme ořechové máslo a čokoládu.","Tvarujeme cookies, pečeme 12 minut na 180 °C."],ing:[{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Banán",m:"1 ks",k:"Zelenina & ovoce"},{n:"Ořechové máslo",m:"2 lžíce",k:"Suché potraviny"},{n:"Čokoládové lupínky",m:"hrst",k:"Suché potraviny"}]},
-  {id:50,nazev:"Jablečný vločkovek",kat:"Sladká tečka",kcal:315,b:8,s:36,t:7,photoUrl:PHOTO_BASE+"50_Jablecny_vlockovek.png",postup:["Jablka oloupeme, nastrouháme a smícháme s vločky.","Přidáme vejce, skořici a sladidlo.","Pečeme v pekáči 30 minut na 180 °C."],ing:[{n:"Jablka",m:"3 ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Skořice",m:"1 lžička",k:"Koření a dochucovadla"}]},
-  {id:51,nazev:"Proteinový koláč kakao",kat:"Sladká tečka",kcal:166,b:10,s:15,t:7,photoUrl:PHOTO_BASE+"51_Proteinovy_kolac_kakao.png",postup:["Vločky pomixujeme s proteinem a kakaem.","Přidáme banán a vejce, promícháme.","Pečeme v pekáči 25 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"100g",k:"Suché potraviny"},{n:"Protein",m:"60g",k:"Suché potraviny"},{n:"Banán",m:"1 ks",k:"Zelenina & ovoce"},{n:"Vejce",m:"4 ks",k:"Mléčné výrobky"},{n:"Kakao",m:"1 lžíce",k:"Suché potraviny"}]},
+  {id:50,nazev:"Jablečný vločkovek",kat:"Sladká tečka",kcal:315,b:8,s:36,t:7,photoUrl:PHOTO_BASE+"50_Jablecny_vlockovek.png",postup:["Jablka oloupeme, nastrouháme a smícháme s vločky.","Přidáme vejce, skořici a sladidlo.","Pečeme v pekáči 30 minut na 180 °C."],ing:[{n:"Jablko",m:"½ ks",k:"Zelenina & ovoce"},{n:"Ovesné vločky",m:"25g",k:"Suché potraviny"},{n:"Vejce",m:"⅓ ks",k:"Mléčné výrobky"},{n:"Skořice",m:"špetka",k:"Koření a dochucovadla"}]},
+  {id:51,nazev:"Proteinový koláč kakao",kat:"Sladká tečka",kcal:166,b:10,s:15,t:7,photoUrl:PHOTO_BASE+"51_Proteinovy_kolac_kakao.png",postup:["Vločky pomixujeme s proteinem a kakaem.","Přidáme banán a vejce, promícháme.","Pečeme v pekáči 25 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"17g",k:"Suché potraviny"},{n:"Protein",m:"10g",k:"Suché potraviny"},{n:"Banán",m:"⅙ ks",k:"Zelenina & ovoce"},{n:"Vejce",m:"⅔ ks",k:"Mléčné výrobky"},{n:"Kakao",m:"špetka",k:"Suché potraviny"}]},
   {id:52,nazev:"Proteinový koláč malina",kat:"Sladká tečka",kcal:444,b:33,s:62,t:6,photoUrl:PHOTO_BASE+"52_Proteinovy_kolac_malina.png",postup:["Vločky smícháme s proteinem a bílky.","Vmícháme maliny, přeneseme do formy.","Pečeme 25 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"80g",k:"Suché potraviny"},{n:"Protein",m:"15g",k:"Suché potraviny"},{n:"Bílky",m:"3 ks",k:"Mléčné výrobky"},{n:"Maliny",m:"hrst",k:"Zelenina & ovoce"}]},
-  {id:53,nazev:"Ovocné proteinové muffiny",kat:"Sladká tečka",kcal:130,b:7,s:20,t:2,photoUrl:PHOTO_BASE+"53_Ovocne_proteinove_muffiny.png",postup:["Vločky smícháme s tvarohem a vejci.","Vmícháme ovoce, naplníme formy na muffiny.","Pečeme 22 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"150g",k:"Suché potraviny"},{n:"Vejce",m:"2 ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Ovoce (borůvky, maliny)",m:"150g",k:"Zelenina & ovoce"}]},
-  {id:54,nazev:"Muffinky Cuky Luky",kat:"Sladká tečka",kcal:68,b:5,s:1,t:4,photoUrl:PHOTO_BASE+"54_Muffinky_Cuky_Luky.png",postup:["Vejce vyšleháme s tvarohem a sladidlem.","Přidáme vanilku, naplníme formy.","Pečeme 18 minut na 175 °C."],ing:[{n:"Vejce",m:"4 ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"200g",k:"Mléčné výrobky"},{n:"Erythritol nebo med",m:"2 lžíce",k:"Koření a dochucovadla"},{n:"Vanilka",m:"1 lžička",k:"Koření a dochucovadla"}]},
-  {id:55,nazev:"Svěží FIT pudink",kat:"Sladká tečka",kcal:580,b:11,s:61,t:28,photoUrl:PHOTO_BASE+"55_Svezi_FIT_pudink.png",postup:["Chia semínka smícháme s kokosovým mlékem.","Přidáme med, zamícháme a necháme 4 hodiny.","Servírujeme s čerstvým ovocem navrchu."],ing:[{n:"Kokosové mléko",m:"400ml",k:"Suché potraviny"},{n:"Chia semínka",m:"4 lžíce",k:"Suché potraviny"},{n:"Ovoce (mango, borůvky)",m:"150g",k:"Zelenina & ovoce"},{n:"Med",m:"1 lžíce",k:"Koření a dochucovadla"}]},
+  {id:53,nazev:"Ovocné proteinové muffiny",kat:"Sladká tečka",kcal:130,b:7,s:20,t:2,photoUrl:PHOTO_BASE+"53_Ovocne_proteinove_muffiny.png",postup:["Vločky smícháme s tvarohem a vejci.","Vmícháme ovoce, naplníme formy na muffiny.","Pečeme 22 minut na 175 °C."],ing:[{n:"Ovesné vločky",m:"13g",k:"Suché potraviny"},{n:"Vejce",m:"⅙ ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"8g",k:"Mléčné výrobky"},{n:"Ovoce (borůvky, maliny)",m:"1 lžíce",k:"Zelenina & ovoce"}]},
+  {id:54,nazev:"Muffinky Cuky Luky",kat:"Sladká tečka",kcal:68,b:5,s:1,t:4,photoUrl:PHOTO_BASE+"54_Muffinky_Cuky_Luky.png",postup:["Vejce vyšleháme s tvarohem a sladidlem.","Přidáme vanilku, naplníme formy.","Pečeme 18 minut na 175 °C."],ing:[{n:"Vejce",m:"⅓ ks",k:"Mléčné výrobky"},{n:"Tvaroh",m:"17g",k:"Mléčné výrobky"},{n:"Erythritol nebo med",m:"½ lžičky",k:"Koření a dochucovadla"},{n:"Vanilka",m:"špetka",k:"Koření a dochucovadla"}]},
+  {id:55,nazev:"Svěží FIT pudink",kat:"Sladká tečka",kcal:290,b:6,s:31,t:14,photoUrl:PHOTO_BASE+"55_Svezi_FIT_pudink.png",postup:["Chia semínka smícháme s kokosovým mlékem.","Přidáme med, zamícháme a necháme 4 hodiny.","Servírujeme s čerstvým ovocem navrchu."],ing:[{n:"Kokosové mléko",m:"200ml",k:"Suché potraviny"},{n:"Chia semínka",m:"2 lžíce",k:"Suché potraviny"},{n:"Ovoce (mango, borůvky)",m:"75g",k:"Zelenina & ovoce"},{n:"Med",m:"½ lžíce",k:"Koření a dochucovadla"}]},
   {id:56,nazev:"Tvaroh s lesním ovocem",kat:"Sladká tečka",kcal:246,b:19,s:34,t:6,photoUrl:PHOTO_BASE+"56_Tvaroh_s_lesnim_ovocem.png",postup:["Ovoce rozmražíme nebo omyjeme.","Tvaroh smícháme se stévií.","Ozdobíme ovocem a podáváme."],ing:[{n:"Tvaroh nízkotučný",m:"200g",k:"Mléčné výrobky"},{n:"Lesní ovoce (mražené nebo čerstvé)",m:"150g",k:"Zelenina & ovoce"},{n:"Med nebo sirup",m:"1 lžíce",k:"Koření a dochucovadla"}]},
   {id:57,nazev:"Pohanková kaše s brusinkami a mandlemi",kat:"Sladká tečka",kcal:349,b:13,s:47,t:13,photoUrl:PHOTO_BASE+"57_Pohankova_kase_s_brusinkamy_a_mandlemi.png",postup:["Pohanku vaříme v mléce 15 minut.","Odstavíme, přidáme brusinky a promícháme.","Ozdobíme mandlemi a podáváme."],ing:[{n:"Pohanka loupaná",m:"100g",k:"Suché potraviny"},{n:"Mléko",m:"250ml",k:"Mléčné výrobky"},{n:"Brusinky sušené",m:"2 lžíce",k:"Suché potraviny"},{n:"Mandle",m:"hrst",k:"Suché potraviny"}]},
   {id:58,nazev:"Ovocné jáhly",kat:"Sladká tečka",kcal:521,b:20,s:69,t:18,photoUrl:PHOTO_BASE+"58_Ovocne_jahly.png",postup:["Jáhly spaříme, uvaříme v poměru 1:2.","Jablka a hrušky podusíme se skořicí.","Vrstvíme jáhly, ovoce a tvarohový krém."],ing:[{n:"Jáhly",m:"100g",k:"Suché potraviny"},{n:"Ovocné smoothie",m:"200ml",k:"Zelenina & ovoce"},{n:"Ricotta nebo tvaroh",m:"100g",k:"Mléčné výrobky"},{n:"Ovoce (jahody, borůvky)",m:"150g",k:"Zelenina & ovoce"}]},
@@ -1068,9 +1120,21 @@ const MEALS = [
 
 const CATS_ORDER = ["Zelenina & ovoce","Maso & ryby","Mléčné výrobky","Suché potraviny","Koření a dochucovadla","Ostatní"];
 
+const EXTRAS = [
+  {id:'e1', nazev:'Jablko',              kcal:80,  b:0,  s:21, t:0,  ing:{n:'Jablko',m:'1 ks',k:'Zelenina & ovoce'}},
+  {id:'e2', nazev:'Banán',               kcal:100, b:1,  s:26, t:0,  ing:{n:'Banán',m:'1 ks',k:'Zelenina & ovoce'}},
+  {id:'e3', nazev:'Bílý jogurt',         kcal:120, b:10, s:8,  t:5,  ing:{n:'Bílý jogurt',m:'150g',k:'Mléčné výrobky'}},
+  {id:'e4', nazev:'Hrst ořechů (20g)',   kcal:120, b:3,  s:2,  t:11, ing:{n:'Vlašské ořechy',m:'20g',k:'Suché potraviny'}},
+  {id:'e5', nazev:'Proteinová tyčinka',  kcal:200, b:20, s:18, t:6,  ing:{n:'Proteinová tyčinka',m:'1 ks',k:'Suché potraviny'}},
+  {id:'e6', nazev:'Sklenice mléka',      kcal:130, b:8,  s:12, t:5,  ing:{n:'Mléko',m:'250ml',k:'Mléčné výrobky'}},
+  {id:'e7', nazev:'Tvaroh nízkotučný',   kcal:150, b:22, s:7,  t:3,  ing:{n:'Tvaroh nízkotučný',m:'200g',k:'Mléčné výrobky'}},
+  {id:'e8', nazev:'Cottage sýr',         kcal:110, b:12, s:4,  t:5,  ing:{n:'Cottage sýr',m:'100g',k:'Mléčné výrobky'}},
+];
+
 // Stav
 const selection = {}; // dayIndex -> {mealKey -> recipeId}
 const mealOverrides = {}; // 'di_mealKey' -> coefficient (1.0 = 100%)
+const extrasSelection = {}; // dayIndex -> [extraId, ...]
 let goalKcal = null;     // cílový denní příjem v kcal
 
 // ─── localStorage helpers (s try/catch pro privátní záložky) ─────────────────
@@ -1165,6 +1229,7 @@ function initDays() {
               <div class="macro-lbl">Tuky</div>
             </div>
           </div>
+          <div id="bubble-status-${di}" class="bubble-status"></div>
         </div>
         <div class="day-card">
           <h3>${day}</h3>
@@ -1206,6 +1271,12 @@ function getDayMacros(dayIdx) {
     const c = mealOverrides[k] || 1;
     m.kcal += r.kcal * c; m.b += r.b * c; m.s += r.s * c; m.t += r.t * c;
   });
+  // Přičti extras
+  (extrasSelection[dayIdx] || []).forEach(eid => {
+    const e = EXTRAS.find(x => x.id === eid);
+    if (!e) return;
+    m.kcal += e.kcal; m.b += e.b; m.s += e.s; m.t += e.t;
+  });
   m.kcal = Math.round(m.kcal); m.b = Math.round(m.b); m.s = Math.round(m.s); m.t = Math.round(m.t);
   return m;
 }
@@ -1236,6 +1307,7 @@ function updateSummary() {
       sEl.textContent = m.s + 'g';
       tEl.textContent = m.t + 'g';
     }
+    updateDayStatus(di, m.kcal);
     total.kcal += m.kcal; total.b += m.b; total.s += m.s; total.t += m.t;
   });
   const avgKcal = Math.round(total.kcal / 7);
@@ -1291,22 +1363,27 @@ function updateGoalIndicator(avgKcal) {
 }
 
 function updateTunePanel(avgKcal) {
-  const panel = document.getElementById('tune-panel');
+  // Panel viditelnost řídí uživatel přes tlačítko "Pokročilé nastavení".
+  // Tato funkce jen aktualizuje obsah banneru, pokud je panel otevřený.
   const banner = document.getElementById('tune-banner');
-  if (!panel || !banner) return;
-  if (!goalKcal || avgKcal === 0) { panel.classList.remove('visible'); return; }
+  if (!banner) return;
+  if (!goalKcal || avgKcal === 0) {
+    banner.className = 'tune-banner';
+    banner.innerHTML = 'Nastav si nejdřív cílový příjem a vyber alespoň jedno jídlo — tady se pak objeví doporučení.';
+    return;
+  }
   const diff = avgKcal - goalKcal;
-  if (Math.abs(diff) < 50) { panel.classList.remove('visible'); return; }
   let cls = 'tune-banner';
   if (Math.abs(diff) > 300) cls += ' bad';
   else if (Math.abs(diff) > 100) cls += ' warn';
   banner.className = cls;
-  if (diff < 0) {
+  if (Math.abs(diff) < 50) {
+    banner.innerHTML = `Tvůj průměr je <strong>${avgKcal} kcal</strong>, cíl je <strong>${goalKcal} kcal</strong>. ✓ Jsi v toleranci, nemusíš nic ladit.`;
+  } else if (diff < 0) {
     banner.innerHTML = `Tvůj průměr je <strong>${avgKcal} kcal</strong>, cíl je <strong>${goalKcal} kcal</strong>. Chybí ti <strong>~${Math.abs(diff)} kcal / den</strong>. Jak to doladit?`;
   } else {
     banner.innerHTML = `Tvůj průměr je <strong>${avgKcal} kcal</strong>, cíl je <strong>${goalKcal} kcal</strong>. Překračuješ cíl o <strong>~${diff} kcal / den</strong>. Jak to doladit?`;
   }
-  panel.classList.add('visible');
 }
 
 function generateShoppingList() {
@@ -1321,6 +1398,17 @@ function generateShoppingList() {
         if (!aggregated[key]) aggregated[key] = {nazev: ing.n, kat: ing.k, mnozstvi: []};
         aggregated[key].mnozstvi.push(ing.m);
       });
+    });
+  });
+
+  // Přidej extras
+  DAYS.forEach((_, di) => {
+    (extrasSelection[di] || []).forEach(eid => {
+      const e = EXTRAS.find(x => x.id === eid);
+      if (!e) return;
+      const key = e.ing.n.toLowerCase();
+      if (!aggregated[key]) aggregated[key] = {nazev: e.ing.n, kat: e.ing.k, mnozstvi: []};
+      aggregated[key].mnozstvi.push(e.ing.m);
     });
   });
 
@@ -1362,6 +1450,7 @@ function resetAll() {
   if (!confirm('Opravdu vymazat plánovač, kalkulačky, cíl i uložená data?')) return;
   DAYS.forEach((_, di) => { selection[di] = {}; });
   Object.keys(mealOverrides).forEach(k => delete mealOverrides[k]);
+  Object.keys(extrasSelection).forEach(k => delete extrasSelection[k]);
   goalKcal = null;
   document.querySelectorAll('.day-card select').forEach(s => s.value = '');
   document.getElementById('goal-kcal').value = '';
@@ -1458,7 +1547,7 @@ function updateJidelnicekContent() {
   if (isWeek) {
     el.innerHTML = buildWeekOverview();
   } else {
-    el.innerHTML = `<div class="meal-cards-grid">${buildDayCards(activeDayJidelnicek)}</div>`;
+    el.innerHTML = `<div class="meal-cards-grid">${buildDayCards(activeDayJidelnicek)}</div>${buildExtrasRow(activeDayJidelnicek)}`;
   }
   // Přepni viditelnost tlačítek tisku
   const btnDay = document.getElementById('btn-print-day');
@@ -1909,6 +1998,10 @@ function restoreFromLS() {
   const ov = lsGetJSON('overrides');
   if (ov) Object.assign(mealOverrides, ov);
 
+  // Extras
+  const ex = lsGetJSON('extras');
+  if (ex) Object.assign(extrasSelection, ex);
+
   // Goal
   const g = lsGet('goal_kcal');
   if (g) {
@@ -1943,6 +2036,118 @@ function attachLSListeners() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => { lsSet(id, el.value); showSavedToast(); });
   });
+}
+
+// ─── SEMAFOR + EXTRAS (per den) ────────────────────────────────────────────
+function updateDayStatus(di, dayKcal) {
+  const el = document.getElementById(`bubble-status-${di}`);
+  if (!el) return;
+
+  if (!goalKcal || dayKcal === 0) { el.innerHTML = ''; el.className = 'bubble-status'; return; }
+
+  const diff = dayKcal - goalKcal;
+  const pct = Math.abs(diff) / goalKcal * 100;
+
+  if (pct <= 5) {
+    el.className = 'bubble-status ok';
+    el.innerHTML = '✅ Na cíli';
+    return;
+  }
+
+  let tipHtml = '';
+  if (diff > 0) {
+    const cls = pct <= 15 ? 'warn' : 'bad';
+    const icon = pct <= 15 ? '⚠️' : '🔴';
+    el.className = `bubble-status ${cls}`;
+    let maxKcal = 0, maxMeal = '';
+    Object.entries(selection[di] || {}).forEach(([mk, rid]) => {
+      if (!rid) return;
+      const r = RECIPES.find(x => x.id === rid);
+      if (r && r.kcal > maxKcal) { maxKcal = r.kcal; maxMeal = r.nazev; }
+    });
+    tipHtml = `
+      <details class="day-tip">
+        <summary>${icon} +${Math.round(diff)} kcal · Co s tím?</summary>
+        <div class="day-tip-body">
+          ${maxMeal ? `<p>💡 Nejkalorijnější jídlo: <strong>${maxMeal}</strong> (${maxKcal} kcal)</p>` : ''}
+          <p>Zkus jednu z možností:</p>
+          <button class="tip-btn" onclick="openTuneForDay(${di},'portions')">⚖️ Upravit gramáže</button>
+          <button class="tip-btn" onclick="openTuneForDay(${di},'swap')">🔄 Vyměnit jídlo</button>
+        </div>
+      </details>`;
+  } else {
+    const cls = pct <= 15 ? 'warn' : 'bad';
+    const icon = pct <= 15 ? '⚠️' : '🔴';
+    el.className = `bubble-status ${cls}`;
+    tipHtml = `
+      <details class="day-tip">
+        <summary>${icon} −${Math.round(Math.abs(diff))} kcal · Co přidat?</summary>
+        <div class="day-tip-body">
+          <p>Přidej k tomuto dni rychlou svačinku:</p>
+          <div class="extras-grid" id="extras-grid-${di}"></div>
+        </div>
+      </details>`;
+  }
+
+  el.innerHTML = tipHtml;
+  const extrasGrid = document.getElementById(`extras-grid-${di}`);
+  if (extrasGrid) renderExtrasGrid(di, extrasGrid);
+}
+
+function renderExtrasGrid(di, container) {
+  const selected = extrasSelection[di] || [];
+  container.innerHTML = EXTRAS.map(e => {
+    const isOn = selected.includes(e.id);
+    return `<button class="extra-pill ${isOn ? 'active' : ''}" onclick="toggleExtra(${di}, '${e.id}')">${e.nazev} <span class="extra-kcal">+${e.kcal} kcal</span></button>`;
+  }).join('');
+}
+
+function toggleExtra(di, extraId) {
+  if (!extrasSelection[di]) extrasSelection[di] = [];
+  const idx = extrasSelection[di].indexOf(extraId);
+  if (idx > -1) extrasSelection[di].splice(idx, 1);
+  else extrasSelection[di].push(extraId);
+  // Když pole zůstane prázdné, smaž klíč
+  if (!extrasSelection[di].length) delete extrasSelection[di];
+  lsSet('extras', extrasSelection);
+  updateSummary();
+  showSavedToast();
+}
+
+function buildExtrasRow(di) {
+  const ids = extrasSelection[di] || [];
+  if (!ids.length) return '';
+  const parts = ids.map(eid => {
+    const e = EXTRAS.find(x => x.id === eid);
+    return e ? `${e.nazev} (${e.kcal} kcal)` : '';
+  }).filter(Boolean);
+  if (!parts.length) return '';
+  return `<div class="jidelnicek-extras-row"><strong>+ Přidané svačinky:</strong> ${parts.join(', ')}</div>`;
+}
+
+function openTuneForDay(di, mode) {
+  // Otevři pokročilé nastavení a předvyplň den
+  const tp = document.getElementById('tune-panel');
+  if (tp) tp.style.display = 'block';
+  refreshTuneSelectors();
+  const dayS = document.getElementById('tune-add-day');
+  if (dayS) dayS.value = di;
+  if (mode === 'portions') {
+    // Předvyber první obsazený slot dne v portion-select
+    const portionS = document.getElementById('tune-portion-meal');
+    if (portionS) {
+      const meals = MEALS;
+      for (const m of meals) {
+        const k = di + '_' + m.key;
+        if (portionS.querySelector(`option[value="${k}"]`)) {
+          portionS.value = k;
+          tunePortionUpdatePreview();
+          break;
+        }
+      }
+    }
+  }
+  tp?.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 // Spusť po naplnění days-grid
